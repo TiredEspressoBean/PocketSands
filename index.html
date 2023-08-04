@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+
+<html lang="en-US"></html>
+http-server -p 8080
+
+<head>
+    <link rel="manifest" href="manifest.webmanifest">
+</head>
+<div>
+<!--    <div>-->
+<!--        <h1 class = "title">Cascade of Sands</h1>-->
+<!--        <div class = "subheader">-->
+<!--            <div>-->
+<!--                <h3>By: Cameron Isherwood</h3>-->
+<!--            </div>-->
+<!--            <div>-->
+<!--                <h3>Github</h3>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+    <div class="wrapper" id="gameDiv">
+        <canvas id = "gameCanvas" style="border:1px solid #000000;">Your browser doesn't support HTML5 canvas.</canvas>
+    </div>
+    <div class = "Menu">
+        <table id="Elements"></table>
+    </div>
+    <div>
+        <div>
+            <label for = "penSize">PEN SIZE</label>
+            <input type="number" id="penSize">
+        </div>
+        <div>
+            <label for="eraserCheck">Overwrite</label>
+            <input type="checkbox" id="eraserCheck">
+        </div>
+        <div id="FPSsliderDiv">
+            <label for = "FPSslider">SPEED</label>
+            <input type = "range" id = "FPSslider">
+        </div>
+        <div class = "loadSaveClear">
+            <input id="saveButton" type = "button" value="SAVE">
+            <input id="loadButton" class="optionButton" type="button" value = "LOAD">
+            <input id="clearButton" type="button" value="CLEAR">
+<!--            <input id ="exportButton" type = "button" value = EXPORT>-->
+<!--            <input id ="importButton" type = "file" value = IMPORT accept="image/png">-->
+
+        </div>
+    </div>
+    <div id = "FPScounter"></div>
+</div>
+<script>
+	if ('serviceWorker' in navigator) {
+		navigator.serviceWorker
+			.register('/sw.js')
+			.then(function(registration) {
+				console.log('Service Worker registered with scope:', registration.scope);
+			})
+			.catch(function(error) {
+				console.error('Error registering Service Worker:', error);
+			});
+	}
+</script>
+<script type="text/javascript" src="scripts/canvasConfig.js"></script>
+<script type="text/javascript" src="scripts/utilities.js"></script>
+<script type="text/javascript" src="scripts/Elements.js"></script>
+<script type="text/javascript" src="scripts/Particles.js"></script>
+<script type="text/javascript" src="scripts/Cursor.js"></script>
+<script type="text/javascript" src="scripts/MenuElements.js"></script>
+<script type="text/javascript" src="scripts/game.js"></script>
+
