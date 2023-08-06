@@ -3,7 +3,7 @@
   "description": "A small physics game in the vein of the falling sand genre.",
   "theme_color": "#ecd59b",
   "background_color": "#fbfbfb",
-  "display": "fullscreen",
+  "display": "standalone",
   "scope": "/",
   "start_url": "pocketsands.com",
   "name": "Pocket Sands Game",
