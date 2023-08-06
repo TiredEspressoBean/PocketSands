@@ -1,7 +1,7 @@
 {
   "theme_color": "#ecd59b",
   "background_color": "#fbfbfb",
-  "display": "browser",
+  "display": "fullscreen",
   "scope": "/",
   "start_url": "pocketsands.com",
   "name": "Pocket Sands Game",
@@ -28,5 +28,16 @@
       "type": "image/png",
       "purpose": "any"
     }
+  ],
+  "orientation": "portrait",
+  "lang": "en",
+  "dir": "auto",
+  "display_override": [
+    "window-controls-overlay"
+  ],
+  "categories": [
+    "education",
+    "entertainment",
+    "games"
   ]
 }
