@@ -1,73 +1,48 @@
 // Service Worker Script
+// This is the "Offline page" service worker
 
-const CACHE_NAME = 'my-site-cache-v1';
-const OFFLINE_PAGE = '/index.html';
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-const urlsToCache = [
-	OFFLINE_PAGE,
-	'/styles.css',
-	'/scripts/canvasConfig.js',
-	'/scripts/utilities.js',
-	'/scripts/Elements.js',
-	'/scripts/MenuElements.js',
-	'/scripts/game.js',
-	'/scripts/Particles.js',
-	'/scripts/Cursor.js',
-];
+const CACHE = "pwabuilder-page";
 
-self.addEventListener('install', (event) => {
+// TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
+const offlineFallbackPage = "index.html";
+
+self.addEventListener("message", (event) => {
+	if (event.data && event.data.type === "SKIP_WAITING") {
+		self.skipWaiting();
+	}
+});
+
+self.addEventListener('install', async (event) => {
 	event.waitUntil(
-		caches.open(CACHE_NAME)
-			.then((cache) => cache.addAll(urlsToCache))
-			.then(() => self.skipWaiting())
+		caches.open(CACHE)
+			.then((cache) => cache.add(offlineFallbackPage))
 	);
 });
 
-self.addEventListener('activate', (event) => {
-	event.waitUntil(
-		caches.keys()
-			.then((cacheNames) => {
-				return Promise.all(
-					cacheNames.map((cacheName) => {
-						if (cacheName !== CACHE_NAME) {
-							return caches.delete(cacheName);
-						}
-					})
-				);
-			})
-			.then(() => self.clients.claim())
-	);
-});
+if (workbox.navigationPreload.isSupported()) {
+	workbox.navigationPreload.enable();
+}
 
 self.addEventListener('fetch', (event) => {
-	event.respondWith(
-		caches.match(event.request)
-			.then((response) => {
-				// If the request is in the cache, return the cached version
-				if (response) {
-					return response;
+	if (event.request.mode === 'navigate') {
+		event.respondWith((async () => {
+			try {
+				const preloadResp = await event.preloadResponse;
+
+				if (preloadResp) {
+					return preloadResp;
 				}
 
-				// If the request is not in the cache, fetch it from the network
-				return fetch(event.request)
-					.then((response) => {
-						// If the response is valid, clone it and add it to the cache
-						if (!response || response.status !== 200 || response.type !== 'basic') {
-							return response;
-						}
+				const networkResp = await fetch(event.request);
+				return networkResp;
+			} catch (error) {
 
-						const responseToCache = response.clone();
-						caches.open(CACHE_NAME)
-							.then((cache) => cache.put(event.request, responseToCache));
-
-						return response;
-					})
-					.catch((error) => {
-						// Fetch failed, handle the error here
-						console.error('Fetch error:', error);
-						// Return the offline page
-						return caches.match(OFFLINE_PAGE);
-					});
-			})
-	);
+				const cache = await caches.open(CACHE);
+				const cachedResp = await cache.match(offlineFallbackPage);
+				return cachedResp;
+			}
+		})());
+	}
 });
