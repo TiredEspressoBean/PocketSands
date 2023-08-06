@@ -196,7 +196,7 @@ function FIRE_ACTION(x, y, i) {
 	}
 
 	if (random() < 10) {
-		let sandLoc = borderingAdjacent(x, Y, i, SAND)
+		let sandLoc = borderingAdjacent(x, y, i, SAND)
 		if (sandLoc !== -1) {
 			renderImageData32[i] = GLASS
 		}
