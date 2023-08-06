@@ -1,13 +1,3 @@
-let PENSIZE;
-let SELECTED_ELEM;
-let OVERWRITE_ENABLED;
-
-const playerInteractionCanvas = document.createElement("canvas");
-playerInteractionCanvas.width = width;
-playerInteractionCanvas.height = height;
-const playerInteractionContext = playerInteractionCanvas.getContext("2d", {alpha: false}, {willReadFrequently: true});
-
-
 const CURSORS = []
 
 /**
@@ -34,7 +24,7 @@ function getRelativeCoords(x1, x2, y1, y2, strokeBuffer) {
 	const y1_relative = y1 - y_translate;
 	const x2_relative = x2 - x_translate;
 	const y2_relative = y2 - y_translate;
-	return { x_translate, y_translate, x1_relative, y1_relative, x2_relative, y2_relative };
+	return {x_translate, y_translate, x1_relative, y1_relative, x2_relative, y2_relative};
 }
 
 /**
@@ -49,7 +39,6 @@ function getRelativeCoords(x1, x2, y1, y2, strokeBuffer) {
  */
 function transferStroke(strokeImageData32, userStroke_width, userStroke_height,
                         x_translate, y_translate, overwrite, color) {
-	const background = BACKGROUND
 
 	for (let y = 0; y < userStroke_height; y++) {
 		const y_absolute = y + y_translate;
@@ -68,9 +57,9 @@ function transferStroke(strokeImageData32, userStroke_width, userStroke_height,
 			if (pixelColor !== 0xff000000) {
 				// Apply the stroke color to the main canvas for non-transparent pixels in the strokeImageData.
 				if (overwrite || renderImageData32[absIdx] === BACKGROUND) {
-				// If using the eraser (background color), set the main canvas pixel to the background color directly.
-				renderImageData32[absIdx] = color;
-				} else if (color === BACKGROUND){
+					// If using the eraser (background color), set the main canvas pixel to the background color directly.
+					renderImageData32[absIdx] = color;
+				} else if (color === BACKGROUND) {
 					renderImageData32[absIdx] = color
 				}
 			}
@@ -293,7 +282,8 @@ class Cursor {
 		this.documentY = pos[1];
 	}
 
-	documentVisibilityChange(e) {}
+	documentVisibilityChange(e) {
+	}
 
 	/**
 	 * Draws a stroke on the canvas based on the current cursor position and previous position.
@@ -330,13 +320,13 @@ class Cursor {
 		this.prev_y = this.y;
 
 		// Calculate the buffer space around the stroke to avoid edge artifacts.
-		const strokeBuffer = Math.ceil(PENSIZE / 2);
+		const strokeBuffer = Math.ceil((PENSIZE / 2) * screen_scale);
 		const { x_translate, y_translate, x1_relative, y1_relative, x2_relative, y2_relative } =
 			getRelativeCoords(x1, x2, y1, y2, strokeBuffer);
 
 		// Initialize the offscreen canvas only if it needs to be resized.
-		const userStroke_width = x2_relative + PENSIZE + 2;
-		const userStroke_height = Math.max(y1_relative, y2_relative) + PENSIZE + 2;
+		const userStroke_width = x2_relative + Math.ceil(PENSIZE * screen_scale) + 2;
+		const userStroke_height = Math.max(y1_relative, y2_relative) + Math.ceil(PENSIZE * screen_scale) + 2;
 		if (playerInteractionCanvas.width < userStroke_width || playerInteractionCanvas.height < userStroke_height) {
 			playerInteractionCanvas.width = userStroke_width;
 			playerInteractionCanvas.height = userStroke_height;
@@ -350,11 +340,11 @@ class Cursor {
 			playerInteractionContext.beginPath();
 			playerInteractionContext.lineWidth = 0;
 			playerInteractionContext.fillStyle = colorString;
-			playerInteractionContext.arc(x1_relative, y1_relative, PENSIZE / 2, 0, TWO_PI);
+			playerInteractionContext.arc(x1_relative, y1_relative, Math.ceil(PENSIZE * screen_scale) / 2, 0, TWO_PI);
 			playerInteractionContext.fill();
 		} else {
 			// Draw a line on the offscreen canvas.
-			playerInteractionContext.lineWidth = PENSIZE;
+			playerInteractionContext.lineWidth = Math.ceil(PENSIZE * screen_scale);
 			playerInteractionContext.strokeStyle = colorString;
 			playerInteractionContext.lineCap = "round";
 			playerInteractionContext.beginPath();
@@ -402,8 +392,8 @@ class Mouse extends Cursor {
 		let x, y;
 
 		if (withinCanvas) {
-			x = e.offsetX;
-			y = e.offsetY;
+			x = e.offsetX/screen_scale;
+			y = e.offsetY/screen_scale;
 
 			// Ensure the mouse coordinates are within the canvas boundaries
 			x = Math.max(0, Math.min(x, canvas.width));
@@ -454,8 +444,12 @@ class Mouse extends Cursor {
 	 */
 	canvasMouseEnter(e) {
 		const canvas = this.canvas;
-		const getInnerPos = function (self) {return Mouse.getMousePos(e, true, canvas);};
-		const getOuterPos = function (self) {return [self.documentX, self.documentY];};
+		const getInnerPos = function (self) {
+			return Mouse.getMousePos(e, true, canvas);
+		};
+		const getOuterPos = function (self) {
+			return [self.documentX, self.documentY];
+		};
 
 		super.canvasCursorEnter(getInnerPos, getOuterPos);
 
@@ -471,7 +465,9 @@ class Mouse extends Cursor {
 	 */
 	canvasMouseLeave(e) {
 		const canvas = this.canvas;
-		const getOuterPos = function (self) {return Mouse.getMousePos(e, false, canvas);};
+		const getOuterPos = function (self) {
+			return Mouse.getMousePos(e, false, canvas);
+		};
 
 		super.canvasCursorLeave(getOuterPos);
 	}
@@ -622,21 +618,95 @@ class TouchCursor extends Cursor {
 		const touch = e.touches[0];
 		if (!touch) return null;
 
-		const rect = e.target.getBoundingClientRect();
-		var x = Math.round(touch.pageX - rect.left - window.scrollX);
-		var y = Math.round(touch.pageY - rect.top - window.scrollY);
+		// Get the canvas element
+		const canvas = document.getElementById("gameCanvas");
+		const rect = canvas.getBoundingClientRect();
+
+		const touchX = touch.clientX - rect.left;
+		const touchY = touch.clientY - rect.top;
+
+		console.log("TouchX:", touchX, "TouchY:", touchY, "Before Scaling X:", Math.round(touchX), "Before Scaling Y:", Math.round(touchY));
+
+		let x = Math.round(touchX * screen_scale);
+		let y = Math.round(touchY * screen_scale);
+
+		console.log("After Scaling X:", x, "After Scaling Y:", y);
 
 		if (x < 0) x = 0;
-		else if (x >= width) x = MAX_X_IDX;
+		else if (x >= modelCanvas.width) x = modelCanvas.width - 1;
 
 		if (y < 0) y = 0;
-		else if (y >= height) y = MAX_Y_IDX;
+		else if (y >= modelCanvas.height) y = modelCanvas.height - 1;
+
+		console.log("Final X:", x, "Final Y:", y);
+
+		console.log("modelCanvas width:", modelCanvas.width);
+		console.log("modelCanvas height:", modelCanvas.height);
 
 		return [x, y];
 	}
+
+
 }
 
 function initCursors() {
+
+	const mouseCursor = new Mouse(modelCanvas)
+
+	modelCanvas.onmousedown = function (e) {
+		mouseCursor.canvasMouseDown(e);
+	};
+	modelCanvas.onmousemove = function (e) {
+		mouseCursor.canvasMouseMove(e);
+	};
+	modelCanvas.onmouseleave = function (e) {
+		mouseCursor.canvasMouseLeave(e);
+	};
+	modelCanvas.onmouseenter = function (e) {
+		mouseCursor.canvasMouseEnter(e);
+	};
+	document.onmouseup = function () {
+		mouseCursor.documentMouseUp();
+	};
+	document.onmousedown = function (e) {
+		mouseCursor.documentMouseDown(e);
+	};
+	document.onmousemove = function (e) {
+		mouseCursor.documentMouseMove(e);
+	};
+	document.onkeydown = function (e) {
+		mouseCursor.documentKeyDown(e);
+	};
+	document.onkeyup = function (e) {
+		mouseCursor.documentKeyUp(e);
+	};
+	document.onvisibilitychange = function (e) {
+		mouseCursor.documentVisibilityChange(e);
+	};
+
+	const touchCursor = new TouchCursor(modelCanvas);
+	modelCanvas.addEventListener("touchstart", function (e) {
+		touchCursor.canvasTouchStart(e);
+	});
+	modelCanvas.addEventListener("touchend", function (e) {
+		touchCursor.canvasTouchEnd(e);
+	});
+	modelCanvas.addEventListener("touchmove", function (e) {
+		touchCursor.canvasTouchMove(e);
+	});
+
+	CURSORS.push(mouseCursor);
+	CURSORS.push(touchCursor);
+	Object.freeze(CURSORS);
+}
+
+
+function updateUserStroke() {
+	const numCursors = CURSORS.length
+	for (let i = 0; i !== numCursors; i++) {
+		CURSORS[i].drawStroke()
+	}
+}function initCursors() {
 	PENSIZE = PEN_SIZES[DEFAULT_PEN_IDX];
 	SELECTED_ELEM = SAND;
 
@@ -673,7 +743,6 @@ function initCursors() {
 		mouseCursor.documentVisibilityChange(e);
 	};
 
-
 	const touchCursor = new TouchCursor(modelCanvas);
 	modelCanvas.addEventListener("touchstart", function (e) {
 		touchCursor.canvasTouchStart(e);
@@ -688,12 +757,4 @@ function initCursors() {
 	CURSORS.push(mouseCursor);
 	CURSORS.push(touchCursor);
 	Object.freeze(CURSORS);
-
-}
-
-function updateUserStroke() {
-	const numCursors = CURSORS.length
-	for (let i = 0; i !== numCursors; i++) {
-		CURSORS[i].drawStroke()
-	}
 }

@@ -1,10 +1,10 @@
 self.addEventListener('install', (event) => {
 	event.waitUntil(
 		caches.open('my-cache').then((cache) => {
-			return cache.addAll([
-				'index.html',
-				//'/icon-72x72.png',
-				// Add more files to cache here
+			return Promise.all([
+				fetch('/index.html').then((response) => cache.put('/index.html', response)),
+				fetch('/manifest.json').then((response) => cache.put('/manifest.json', response)),
+				// Add more fetch requests for other resources here
 			]);
 		})
 	);

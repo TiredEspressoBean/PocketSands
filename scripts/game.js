@@ -18,10 +18,11 @@ function init() {
 
 	setFPS(BASE_FPS)
 
+	initMenu()
+	initCanvas()
 	initCursors();
 	initElements();
 	initParticles();
-	initMenu()
 
 	const len = renderImageData32.length
 	for (let i = 0; i < len; i++) {
@@ -125,15 +126,17 @@ function updateGame() {
  *
  */
 function draw() {
-	renderContext.putImageData(renderImageArray, 0, 0)
-	renderContext.scale(renderHeight, renderWidth);
-	modelContext.drawImage(
-		renderCanvas,
-		0,
-		0,
-		renderWidth,
-		renderHeight
-	);
+	// Clear the renderCanvas
+	renderContext.clearRect(0, 0, renderCanvas.width, renderCanvas.height);
+
+	// Your logic to update renderImageData32 based on the game state goes here
+
+	// After updating renderImageData32, put the updated data onto the renderCanvas
+	renderContext.putImageData(renderImageArray, 0, 0);
+
+	// Scale and draw the renderCanvas to fit the modelCanvas for display
+	modelContext.clearRect(0, 0, modelCanvas.width, modelCanvas.height);
+	modelContext.drawImage(renderCanvas, 0, 0, modelCanvas.width, modelCanvas.height);
 }
 
 function saveGame(){

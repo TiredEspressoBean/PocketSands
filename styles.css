@@ -1,3 +1,133 @@
-.selectedElementButton{
-    outline: 10px solid black;
+body {
+    font-family: Verdana, Geneva, sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #000000;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.selectedElementButton {
+    outline: 1px solid black;
+}
+
+.MainMenu {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-items: baseline;
+    align-content: normal;
+}
+
+.elementMenu:nth-child(1) {
+    display: block;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    align-self: auto;
+    order: 0;
+}
+
+.Controls:nth-child(2) {
+    display: block;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+    align-self: auto;
+    order: 1;
+}
+
+.gameCanvasWrapper{
+    display: flex;
+    justify-content: space-around; /* Distribute the children with space around */
+    width: 100%;
+}
+
+.gameCanvas {
+    display: flex;
+}
+
+.gameWrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+html, body, div, canvas {
+    margin: 0;
+    padding: 0;
+}
+
+.elementButton {
+    flex: 1;
+    border: 1px solid #FFFFFF;
+    padding: 3px 4px;
+    font-size: 13px;
+    width: 100%;
+}
+
+.Controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+
+.Controls > div {
+    display: flex;
+    align-items: center;
+    margin: 5px;
+}
+
+.Controls label {
+    margin-right: 5px;
+}
+
+.Controls input[type="button"],
+.Controls input[type="checkbox"],
+.Controls input[type="number"],
+.Controls input[type="range"] {
+    margin-right: 10px;
+}
+
+#FPScounter {
+    flex: 1;
+    text-align: right;
+}
+
+@media (max-width: 500px) {
+    body {
+        font-size: 14px;
+    }
+
+    .elementButton {
+        font-size: 14px;
+        padding: 3px;
+    }
+
+    .MainMenu {
+        flex-direction: column;
+        align-items: center; /* Optional: Center the elements horizontally in mobile view */
+        width: auto;
+    }
+
+    .elementMenu:nth-child(1) {
+        flex:1;
+        order: 1;
+        align-self: center; /* Align .elementMenu to the center */
+    }
+
+    .Controls:nth-child(2) {
+        flex-grow: 0;
+        margin-right:0;
+        order: 2;
+    }
 }

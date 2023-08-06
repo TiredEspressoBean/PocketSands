@@ -1,8 +1,3 @@
-const offscreenParticleCanvas = document.createElement("canvas");
-const offscreenParticleCtx = offscreenParticleCanvas.getContext("2d", {
-	alpha: false,
-});
-
 const particleDictionary = {
 	UNKNOWN_PARTICLE:{INIT: UNKNOWN_PARTICLE_INIT, action:UNKNOWN_PARTICLE_ACTION},
 	C4_PARTICLE:{INIT: C4_PARTICLE_INIT, action: C4_PARTICLE_ACTION},

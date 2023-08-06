@@ -1,36 +1,35 @@
 const ELEMENTS_PER_ROW = 4
 const PEN_SIZES = [0, 2, 4, 8, 16, 32, 64];
 const DEFAULT_PEN_IDX = 6;
+let SELECTED_ELEM
+let PENSIZE = PEN_SIZES[DEFAULT_PEN_IDX];
+let OVERWRITE_ENABLED;
+
 
 const menuItems = [
-	WALL, SAND, WATER, FIRE, FUSE, PLANT, SALT, OIL, SOIL, LAVA, C4, METHANE, BACKGROUND, ACID, PRODUCER, ICE, SEED
-]
+	"WALL", "SAND", "WATER", "FIRE",
+	"FUSE", "PLANT", "SALT", "OIL",
+	"SOIL", "LAVA", "C4", "METHANE",
+	"ACID", "ICE", "SEED", "PRODUCER",
+	"BACKGROUND"
+];
 
-//TODO Turn this into a function rather than declaration
-const menuLabel = {}
-menuLabel[WALL] = "WALL"
-menuLabel[SAND] = "SAND"
-menuLabel[WATER] = "WATER"
-menuLabel[FIRE] = "FIRE"
-menuLabel[FUSE] = "FUSE"
-menuLabel[PLANT] = "PLANT"
-menuLabel[SALT] = "SALT"
-menuLabel[OIL] = "OIL"
-menuLabel[SOIL] = "SOIL"
-menuLabel[LAVA] = "LAVA"
-menuLabel[C4] = "C4"
-menuLabel[METHANE] = "METHANE"
-menuLabel[BACKGROUND] = "ERASER"
-menuLabel[ACID] = "ACID"
-menuLabel[PRODUCER] = "PRODUCER"
-menuLabel[ICE] = "ICE"
-menuLabel[SEED] = "SEED"
+const menuLabel = {};
+
+for (const elemType of menuItems) {
+	if (!(elemType in menuLabel)) {
+		const name = elementDict[elemType]["name"]
+		const color = elementDict[elemType]["color"]
+		menuLabel[name] = color;
+	}
+}
+
 
 function initMenu() {
 
+	SELECTED_ELEM = SAND
+
 	let gameWrapper = document.getElementById("gameDiv");
-	gameWrapper.style.height = height + "px";
-	gameWrapper.style.width = width + "px";
 
 	const menu = document.getElementById("Menu")
 
@@ -54,18 +53,20 @@ function initMenu() {
 			button.className = "elementButton";
 
 			const elemType = menuItems[elementIndex];
-			if (!(elemType in menuLabel))
-				throw "Missing name(menu): " + elemType;
-			button.value = menuLabel[elemType];
+			button.value = elemType; // Use the dynamically generated label
 
-			button.id = elemType
+			button.id = menuLabel[elemType];
+
+			if (button.value === "BACKGROUND"){
+				button.value = "ERASER"
+			}
 
 			button.addEventListener("click", function () {
 				document
 					.getElementById(SELECTED_ELEM.toString())
 					.classList.remove("selectedElementButton");
 				button.classList.add("selectedElementButton");
-				SELECTED_ELEM = parseInt(button.id, 10)
+				SELECTED_ELEM = parseInt(button.id, 10);
 			});
 			elementIndex++;
 		}
@@ -94,12 +95,12 @@ function initMenu() {
 	const clearButton = document.getElementById("clearButton")
 	clearButton.onclick = clearCanvas
 
-	const penSizeSlider = document.getElementById("penSize")
-	penSizeSlider.min = 0
-	penSizeSlider.max = 1000
-	penSizeSlider.value = PENSIZE
-	penSizeSlider.addEventListener("input", function () {
-		PENSIZE = parseInt(penSizeSlider.value, 10)
+	const penSize = document.getElementById("penSize")
+	penSize.min = 0
+	penSize.max = 1000
+	penSize.value = PENSIZE
+	penSize.addEventListener("input", function () {
+		PENSIZE = parseInt(penSize.value, 10)
 	})
 
 	function replaceCanvasWithImage(canvas, imageSrc) {

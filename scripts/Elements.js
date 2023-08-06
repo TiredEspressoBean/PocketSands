@@ -28,21 +28,26 @@ elementDict = {
 	PLANT: {color: inGameColors(20, 160, 0), name: "PLANT", action: PLANT_ACTION, gasPermeable: false},
 	STEAM: {color: inGameColors(220, 220, 240), name: "STEAM", action: STEAM_ACTION, gasPermeable: false},
 	SALT: {color: inGameColors(230, 220, 220), name: "SALT", action: SALT_ACTION, gasPermeable: false},
-	SALT_WATER: {color: inGameColors(130, 145, 200), name: "SALT_WATER", action: SALT_WATER_ACTION, gasPermeable: false},
+	SALT_WATER: {
+		color: inGameColors(130, 145, 200),
+		name: "SALT_WATER",
+		action: SALT_WATER_ACTION,
+		gasPermeable: false
+	},
 	OIL: {color: inGameColors(90, 45, 45), name: "OIL", action: OIL_ACTION, gasPermeable: false},
 	SOIL: {color: inGameColors(115, 75, 50), name: "SOIL", action: SOIL_ACTION, gasPermeable: false},
 	MUD: {color: inGameColors(75, 50, 25), name: "MUD", action: MUD_ACTION, gasPermeable: false},
 	LAVA: {color: inGameColors(200, 30, 5), name: "LAVA", action: LAVA_ACTION, gasPermeable: true},
 	C4: {color: inGameColors(185, 185, 150), name: "C4", action: C4_ACTION, gasPermeable: false},
 	METHANE: {color: inGameColors(70, 70, 50), name: "METHANE", action: METHANE_ACTION, gasPermeable: false},
-	PUMICE: {color:inGameColors(170, 165, 165), name: "PUMICE", action:PUMICE_ACTION, gasPermeable:true},
-	GLASS:{color: inGameColors(230, 230, 250), name:"GLASS", action: GLASS_ACTION, gasPermeable:false},
-	ACID:{color: inGameColors(60, 171, 72), name:"ACID", action:ACID_ACTION, gasPermeable:false },
-	PRODUCER:{color:inGameColors(50, 115, 175), name:"PRODUCER", action:PRODUCER_ACTION, gasPermeable:false},
-	ICE:{color:inGameColors(100, 150, 200), name:"ICE", action:ICE_ACTION, gasPermeable:false},
-	SEED:{color:inGameColors(150, 150, 75), name:"SEED", action:SEED_ACTION, gasPermeable:true},
-	LEAF:{color:inGameColors(58, 95, 11), name:"LEAF", action: LEAF_ACTION, gasPermeable:false},
-	BRANCH:{color:inGameColors(85,65,35), name:"BRANCH", action:BRANCH_ACTION, gasPermeable:false}
+	PUMICE: {color: inGameColors(170, 165, 165), name: "PUMICE", action: PUMICE_ACTION, gasPermeable: true},
+	GLASS: {color: inGameColors(230, 230, 250), name: "GLASS", action: GLASS_ACTION, gasPermeable: false},
+	ACID: {color: inGameColors(60, 171, 72), name: "ACID", action: ACID_ACTION, gasPermeable: false},
+	PRODUCER: {color: inGameColors(50, 115, 175), name: "PRODUCER", action: PRODUCER_ACTION, gasPermeable: false},
+	ICE: {color: inGameColors(100, 150, 200), name: "ICE", action: ICE_ACTION, gasPermeable: false},
+	SEED: {color: inGameColors(150, 150, 75), name: "SEED", action: SEED_ACTION, gasPermeable: true},
+	LEAF: {color: inGameColors(58, 95, 11), name: "LEAF", action: LEAF_ACTION, gasPermeable: false},
+	BRANCH: {color: inGameColors(85, 65, 35), name: "BRANCH", action: BRANCH_ACTION, gasPermeable: false}
 	// ANT:{color:inGameColors(190,100,190), name:"ANT", action:ANT_ACTION, gasPermeable:false},
 	// ANT_NEST:{color:inGameColors(75,50, 75), name:"ANT_NEST", action:ANT_NEST_ACTION, gasPermeable:false}
 }
@@ -138,7 +143,7 @@ function FIRE_ACTION(x, y, i) {
 			return
 		}
 	}
-	if (random() < 25) {
+	if (random() < 50) {
 		const plantLocation = borderingAdjacent(x, y, i, PLANT)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = FIRE
@@ -146,26 +151,26 @@ function FIRE_ACTION(x, y, i) {
 		}
 	}
 	if (random() < 25) {
-			const plantLocation = borderingAdjacent(x, y, i, SEED)
-			if (plantLocation !== -1) {
-				renderImageData32[plantLocation] = FIRE
-				return
-			}
+		const plantLocation = borderingAdjacent(x, y, i, SEED)
+		if (plantLocation !== -1) {
+			renderImageData32[plantLocation] = FIRE
+			return
 		}
+	}
 	if (random() < 25) {
-			const plantLocation = borderingAdjacent(x, y, i, LEAF)
-			if (plantLocation !== -1) {
-				renderImageData32[plantLocation] = FIRE
-				return
-			}
+		const plantLocation = borderingAdjacent(x, y, i, LEAF)
+		if (plantLocation !== -1) {
+			renderImageData32[plantLocation] = FIRE
+			return
 		}
+	}
 	if (random() < 25) {
-			const plantLocation = borderingAdjacent(x, y, i, BRANCH)
-			if (plantLocation !== -1) {
-				renderImageData32[plantLocation] = FIRE
-				return
-			}
+		const plantLocation = borderingAdjacent(x, y, i, BRANCH)
+		if (plantLocation !== -1) {
+			renderImageData32[plantLocation] = FIRE
+			return
 		}
+	}
 
 	if (random() < 70) {
 		const plantLocation = borderingAdjacent(x, y, i, ICE)
@@ -189,6 +194,13 @@ function FIRE_ACTION(x, y, i) {
 			renderImageData32[riseLocation] = FIRE;
 		}
 	}
+
+	if (random() < 10) {
+		let sandLoc = borderingAdjacent(x, Y, i, SAND)
+		if (sandLoc !== -1) {
+			renderImageData32[i] = GLASS
+		}
+	}
 }
 
 function FUSE_ACTION(x, y, i) {
@@ -198,7 +210,7 @@ function FUSE_ACTION(x, y, i) {
 function PLANT_ACTION(x, y, i) {
 	if (random() >= 20) doGrow(x, y, i, WATER, 15)
 
-	if (random() <= 5) {
+	if (random() <= 3) {
 		if (borderingAdjacent(x, y, i, BACKGROUND) !== -1) {
 			if (countPixelsOfTypeAround(WALL, x, y, i) > 0 || countPixelsOfTypeAround(SOIL, x, y, i) > 0) {
 				const upSpread = aboveAdjacent(x, y, i, BACKGROUND)
@@ -218,8 +230,8 @@ function PLANT_ACTION(x, y, i) {
 						renderImageData32[spread] = PLANT
 					}
 				}
-						}
 			}
+		}
 	}
 }
 
@@ -301,7 +313,7 @@ function MUD_ACTION(x, Y, i) {
 	}
 
 	if (Y !== MAX_Y_IDX && uniformBelowAdjacent(x, Y, i) !== MUD) {
-		if (doDensitySink(x, Y, i, WATER, true, 90));
+		if (doDensitySink(x, Y, i, WATER, true, 90)) ;
 		if (doDensitySink(x, Y, i, SALT_WATER, true, 90)) ;
 		if (doDensitySink(x, Y, i, OIL, true, 90)) ;
 
@@ -358,8 +370,8 @@ function LAVA_ACTION(x, Y, i) {
 }
 
 function C4_ACTION(x, Y, i) {
-	if (random() < 60 && bordering(x, Y, i, FIRE) !== -1){
-		if (!particles.addActiveParticle("C4_PARTICLE", x, Y, i)){
+	if (random() < 60 && bordering(x, Y, i, FIRE) !== -1) {
+		if (!particles.addActiveParticle("C4_PARTICLE", x, Y, i)) {
 			renderImageData32[i] = FIRE
 		}
 		return
@@ -367,8 +379,8 @@ function C4_ACTION(x, Y, i) {
 }
 
 function METHANE_ACTION(x, Y, i) {
-	if (random() < 20 && bordering(x, Y, i, FIRE) !== -1){
-		if (!particles.addActiveParticle("METHANE_PARTICLE",  x, Y, i)){
+	if (random() < 20 && bordering(x, Y, i, FIRE) !== -1) {
+		if (!particles.addActiveParticle("METHANE_PARTICLE", x, Y, i)) {
 			renderImageData32[i] = FIRE;
 		}
 		return
@@ -378,19 +390,20 @@ function METHANE_ACTION(x, Y, i) {
 	if (doDensityGas(x, Y, i, 50)) ;
 }
 
-function GLASS_ACTION(x, Y, i){}
-
-function PUMICE_ACTION(x, Y, i){
-	if (Y !== MAX_Y_IDX && uniformBelowAdjacent(x, Y, i) !== PUMICE){
-		if (doDensitySink(x, Y, i, WATER, false, 95));
-		if (doDensitySink(x, Y, i, OIL, false, 95));
-		if (doDensitySink(x, Y, i, SALT_WATER, false, 95));
-		if (doDensitySink(x, Y, i, LAVA, false, 15));
-	}
-	if (doGravity(x, Y, i, false, 99));
+function GLASS_ACTION(x, Y, i) {
 }
 
-function ACID_ACTION(x, Y, i){
+function PUMICE_ACTION(x, Y, i) {
+	if (Y !== MAX_Y_IDX && uniformBelowAdjacent(x, Y, i) !== PUMICE) {
+		if (doDensitySink(x, Y, i, WATER, false, 95)) ;
+		if (doDensitySink(x, Y, i, OIL, false, 95)) ;
+		if (doDensitySink(x, Y, i, SALT_WATER, false, 95)) ;
+		if (doDensitySink(x, Y, i, LAVA, false, 15)) ;
+	}
+	if (doGravity(x, Y, i, false, 99)) ;
+}
+
+function ACID_ACTION(x, Y, i) {
 	const ACID_IMMUNE = [GLASS, BACKGROUND, FIRE, LAVA, ACID]
 	const up = Y !== 0 ? i - width : -1
 	const down = Y !== MAX_Y_IDX ? i + width : -1
@@ -400,11 +413,11 @@ function ACID_ACTION(x, Y, i){
 
 	BURN_RANGE = [up, down, left, right]
 
-	if(doGravity(x, Y, i, true, 60));
-	if(doDensitySink(x, Y, i, WATER, true, 10));
-	if(doDensitySink(x, Y, i, OIL, true, 10));
-	if(doDensitySink(x, Y, i, SALT_WATER, true, 10));
-	if(doDensitySink(x, Y, i, LAVA, true, 10));
+	if (doGravity(x, Y, i, true, 60)) ;
+	if (doDensitySink(x, Y, i, WATER, true, 10)) ;
+	if (doDensitySink(x, Y, i, OIL, true, 10)) ;
+	if (doDensitySink(x, Y, i, SALT_WATER, true, 10)) ;
+	if (doDensitySink(x, Y, i, LAVA, true, 10)) ;
 	if (random() < 25) {
 		BURN_RANGE.forEach((burnLocation) => {
 			if (!(ACID_IMMUNE).includes(renderImageData32[burnLocation]) && burnLocation !== -1) {
@@ -414,7 +427,7 @@ function ACID_ACTION(x, Y, i){
 	}
 }
 
-function PRODUCER_ACTION(x, Y, i){
+function PRODUCER_ACTION(x, Y, i) {
 	const prod_neighbors = countPixelsOfTypeAround(PRODUCER, x, Y, i)
 	if (prod_neighbors < 8) {
 		const backgroundLocation = borderingAdjacent(x, Y, i, BACKGROUND)
@@ -422,9 +435,9 @@ function PRODUCER_ACTION(x, Y, i){
 		else {
 			const otherElements = [PRODUCER, BACKGROUND]
 			const locations = findPixelsOfNotTypeAround([otherElements], x, Y, i)
-			if(locations.length !== 0){
+			if (locations.length !== 0) {
 				const randomElement = locations[Math.floor(Math.random() * locations.length)]
-				if (renderImageData32[randomElement] !== PRODUCER && renderImageData32[randomElement] !== BACKGROUND){
+				if (renderImageData32[randomElement] !== PRODUCER && renderImageData32[randomElement] !== BACKGROUND) {
 					renderImageData32[backgroundLocation] = renderImageData32[randomElement]
 				}
 			}
@@ -432,35 +445,35 @@ function PRODUCER_ACTION(x, Y, i){
 	}
 }
 
-function ICE_ACTION(x, y, i){
+function ICE_ACTION(x, y, i) {
 	const saltLoc = bordering(x, y, i, SALT)
-	if (saltLoc !== -1){
+	if (saltLoc !== -1) {
 		renderImageData32[i] = WATER
 	}
 	const saltwaterLoc = bordering(x, y, i, SALT_WATER)
-	if (saltwaterLoc !== -1){
+	if (saltwaterLoc !== -1) {
 		renderImageData32[i] = WATER
 	}
 	if (random() >= 20) doGrow(x, y, i, WATER, 15)
 }
 
-function SEED_ACTION(x, y, i){
-	if(doGravity(x, y, i, true, 75));
+function SEED_ACTION(x, y, i) {
+	if (doGravity(x, y, i, true, 75)) ;
 	const mudLoc = borderingAdjacent(x, y, i, SOIL)
-	if (mudLoc !== -1){
-		if (random()> 98){
-			if (random()> 50){
+	if (mudLoc !== -1) {
+		if (random() > 98) {
+			if (random() > 50) {
 				if (!particles.addActiveParticle("TREE_PARTICLE", x, y, i)) {
 					renderImageData32[i] = BRANCH
 				}
 			}
-		}else{
-			renderImageData32[i]=BACKGROUND
+		} else {
+			renderImageData32[i] = BACKGROUND
 		}
 	}
 }
 
-function LEAF_ACTION(x, y, i){
+function LEAF_ACTION(x, y, i) {
 	// if(countPixelsOfTypeAround(LEAF, x, y, i) < 2 && countPixelsOfTypeAround(BACKGROUND, x, y, i) > 6){
 	// 	const backgroundLoc = borderingAdjacent(x, y, i, BACKGROUND)
 	// 	renderImageData32[backgroundLoc] = LEAF
@@ -468,7 +481,7 @@ function LEAF_ACTION(x, y, i){
 
 }
 
-function BRANCH_ACTION(x, y, i){
+function BRANCH_ACTION(x, y, i) {
 
 }
 
@@ -970,8 +983,8 @@ function burnBorders(x, y, i) {
 	if (x !== MAX_X_IDX) renderImageData32[i + 1] = FIRE
 }
 
-function isEmpty(i){
-	if(renderImageData32[i] === BACKGROUND) return true
+function isEmpty(i) {
+	if (renderImageData32[i] === BACKGROUND) return true
 }
 
 function countPixelsOfTypeAround(type, x, y, i) {
@@ -999,6 +1012,7 @@ function countPixelsOfTypeAround(type, x, y, i) {
 
 	return count;
 }
+
 function findPixelsOfNotTypeAround([types], x, y, i) {
 	function isOfType(idx, elemTypes) {
 		for (let j in elemTypes) {
