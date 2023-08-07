@@ -14,8 +14,103 @@ body {
     box-sizing: border-box;
 }
 
-.selectedElementButton {
-    outline: 1px solid black;
+html, body, div, canvas, p, input {
+    margin: 0;
+    padding: 0;
+}
+
+* input[type="button"]{
+    font-size: 14px;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Hover effect for all buttons */
+* input[type="button"]:hover {
+    opacity: 0.8;
+}
+
+/* Active (clicked) effect for all buttons */
+* input[type="button"]:active {
+    transform: scale(0.95);
+}
+
+/* Style for the track of the range input */
+input[type="range"].custom-range {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+
+input[type="range"].custom-range {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    background-color: #ddd;
+    border-radius: 5px;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Style the track of the range input */
+input[type="range"].custom-range::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px;
+    background-color: #007bff;
+    border-radius: 5px;
+}
+
+/* Style the thumb (handle) of the range input */
+input[type="range"].custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #007bff;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-top: -5px;
+}
+
+/* Style the value of the range input (the tooltip) */
+input[type="range"].custom-range::-webkit-slider-thumb::after {
+    content: attr(value);
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px;
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 5px;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* Show the value (tooltip) on hover */
+input[type="range"].custom-range:hover::-webkit-slider-thumb::after {
+    opacity: 1;
+}
+
+/* Hide the default range input tooltip */
+input[type="range"].custom-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+}
+
+/* Hide the focus outline for webkit browsers */
+input[type="range"].custom-range:focus {
+    outline: none;
 }
 
 .MainMenu {
@@ -28,12 +123,10 @@ body {
 }
 
 .elementMenu:nth-child(1) {
-    display: block;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: auto;
-    align-self: auto;
-    order: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: calc(100% / 3);
 }
 
 .Controls:nth-child(2) {
@@ -45,32 +138,22 @@ body {
     order: 1;
 }
 
-.gameCanvasWrapper{
+.rowContainer {
     display: flex;
-    justify-content: space-around; /* Distribute the children with space around */
-    width: 100%;
-}
-
-.gameCanvas {
-    display: flex;
-}
-
-.gameWrapper {
-    width: 100%;
-    overflow: hidden;
-}
-
-html, body, div, canvas {
-    margin: 0;
-    padding: 0;
+    flex-wrap: wrap;
+    justify-content: space-between;
 }
 
 .elementButton {
-    flex: 1;
-    border: 1px solid #FFFFFF;
-    padding: 3px 4px;
-    font-size: 13px;
-    width: 100%;
+    flex: 1 0 calc(25% - 10px);
+    max-width: calc(33.33% - 10px);
+    min-width: min-content;
+    margin: 5px;
+    /* Add other styles for the button */
+}
+
+.selectedElementButton {
+    outline: 1px solid black;
 }
 
 .Controls {
@@ -87,20 +170,79 @@ html, body, div, canvas {
     margin: 5px;
 }
 
-.Controls label {
-    margin-right: 5px;
+.overwriteSwitch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 26px;
 }
 
-.Controls input[type="button"],
-.Controls input[type="checkbox"],
-.Controls input[type="number"],
-.Controls input[type="range"] {
-    margin-right: 10px;
+.gameCanvasWrapper {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+}
+
+.gameCanvas {
+    display: flex;
+}
+
+.gameWrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Hide the default checkbox input */
+.overwriteSwitch input {
+    display: none;
+}
+
+/* Style the slider shape */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 20px;
+    transition: 0.4s;
+}
+
+/* Style the circle (dot) inside the slider */
+.slider::before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+/* Checked state styles */
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider::before {
+    transform: translateX(14px);
 }
 
 #FPScounter {
     flex: 1;
-    text-align: right;
+    text-align: left;
+    margin:0;
+}
+
+.loadSaveClear {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
 }
 
 @media (max-width: 500px) {
@@ -115,19 +257,20 @@ html, body, div, canvas {
 
     .MainMenu {
         flex-direction: column;
-        align-items: center; /* Optional: Center the elements horizontally in mobile view */
+        align-items: center;
         width: auto;
     }
 
     .elementMenu:nth-child(1) {
-        flex:1;
+        flex: 1;
         order: 1;
-        align-self: center; /* Align .elementMenu to the center */
+        width: 100%;
+        align-self: center;
     }
 
     .Controls:nth-child(2) {
         flex-grow: 0;
-        margin-right:0;
+        margin-right: 0;
         order: 2;
     }
 }

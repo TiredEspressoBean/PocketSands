@@ -21,21 +21,22 @@
         </canvas>
     </div>
     <div class="MainMenu" id="MainMenu">
-        <div class="elementMenu">
-            <table id="Elements"></table>
-        </div>
+        <div class="elementMenu" id="elementMenu"></div>
         <div class="Controls" id="Controls">
             <div>
-                <label for="penSize">PEN SIZES</label>
-                <input type="number" id="penSize">
+                <label for="penSize">PEN SIZE</label>
+                <input type="range" min="0" max="256" value="64" id="penSize">
             </div>
-            <div>
-                <label for="eraserCheck">OVERWRITE</label>
-                <input type="checkbox" id="eraserCheck">
+            <div >
+                <p>OVERWRITE</p>
+                <label class="overwriteSwitch">
+                    <input type="checkbox" id="eraserCheck">
+                    <span class="slider"></span>
+                </label>
             </div>
             <div id="FPSsliderDiv">
-                <label for="FPSslider">SPEED</label>
-                <input type="range" id="FPSslider">
+                <p id="FPScounter"></p>
+                <input type="range" id="FPSslider" aria-label ="Frames per second slider">
             </div>
             <div class="loadSaveClear">
                 <input id="saveButton" type="button" value="SAVE">
@@ -45,16 +46,15 @@
                 <!--            <input id ="importButton" type = "file" value = IMPORT accept="image/png">-->
 
             </div>
-            <div id="FPScounter"></div>
         </div>
     </div>
 </div>
 </body>
 </html>
 <script>
-	if (typeof navigator.serviceWorker !== 'undefined') {
-		navigator.serviceWorker.register('sw.js')
-	}
+	// if (typeof navigator.serviceWorker !== 'undefined') {
+	// 	navigator.serviceWorker.register('sw.js')
+	// }
 </script>
 <script type="text/javascript" src="scripts/canvasConfig.js"></script>
 <script type="text/javascript" src="scripts/utilities.js"></script>

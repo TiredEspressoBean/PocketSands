@@ -1,48 +1,43 @@
 // Service Worker Script
-// This is the "Offline page" service worker
+const CACHE_NAME = 'The-sand-trap';
 
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+const urlsToCache = [
+	'/index.html',
+	'/styles.css',
+	'/manifest.json',
+	'scripts/canvasConfig.js',
+	'scripts/Cursor.js',
+	'scripts/Elements.js',
+	'scripts/game.js',
+	'scripts/MenuElements.js',
+	'scripts/Particles.js',
+	'scripts/utilities.js'
+];
 
-const CACHE = "pwabuilder-page";
-
-// TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
-const offlineFallbackPage = "index.html";
-
-self.addEventListener("message", (event) => {
-	if (event.data && event.data.type === "SKIP_WAITING") {
-		self.skipWaiting();
-	}
-});
-
-self.addEventListener('install', async (event) => {
+self.addEventListener('install', (event) => {
 	event.waitUntil(
-		caches.open(CACHE)
-			.then((cache) => cache.add(offlineFallbackPage))
+		caches.open(CACHE_NAME).then((cache) => {
+			return cache.addAll(urlsToCache);
+		})
 	);
 });
 
-if (workbox.navigationPreload.isSupported()) {
-	workbox.navigationPreload.enable();
-}
-
 self.addEventListener('fetch', (event) => {
-	if (event.request.mode === 'navigate') {
-		event.respondWith((async () => {
-			try {
-				const preloadResp = await event.preloadResponse;
-
-				if (preloadResp) {
-					return preloadResp;
-				}
-
-				const networkResp = await fetch(event.request);
-				return networkResp;
-			} catch (error) {
-
-				const cache = await caches.open(CACHE);
-				const cachedResp = await cache.match(offlineFallbackPage);
-				return cachedResp;
+	event.respondWith(
+		caches.match(event.request).then((response) => {
+			// If the request is found in the cache, return the cached response
+			if (response) {
+				return response;
 			}
-		})());
-	}
+
+			// If the request is not found in the cache, fetch it from the network
+			return fetch(event.request).then((fetchResponse) => {
+				// Cache the fetched response for future requests
+				return caches.open(CACHE_NAME).then((cache) => {
+					cache.put(event.request, fetchResponse.clone());
+					return fetchResponse;
+				});
+			});
+		})
+	);
 });

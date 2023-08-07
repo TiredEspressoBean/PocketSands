@@ -34,43 +34,57 @@ function initMenu() {
 	const menu = document.getElementById("Menu")
 
 
-	const elementMenu = document.getElementById("Elements")
+	const elementMenu = document.getElementById("elementMenu")
 
 	const rows = Math.ceil(menuItems.length / ELEMENTS_PER_ROW);
 
 	let elementIndex = 0;
 	let i, k;
 
-	for (i = 0; i < rows; i++) {
-		const row = elementMenu.insertRow(i);
-		for (k = 0; k < ELEMENTS_PER_ROW; k++) {
-			if (elementIndex >= menuItems.length) break;
-			const cell = row.insertCell(k);
-			const button = document.createElement("input");
-			cell.appendChild(button);
+	for (let i = 0; i < menuItems.length; i++) {
+		const button = document.createElement("input");
+		elementMenu.appendChild(button);
 
-			button.type = "button";
-			button.className = "elementButton";
+		button.type = "button";
+		button.className = "elementButton";
 
-			const elemType = menuItems[elementIndex];
-			button.value = elemType; // Use the dynamically generated label
+		const elemType = menuItems[i];
+		button.value = elemType;
 
-			button.id = menuLabel[elemType];
+		button.id = menuLabel[elemType];
 
-			if (button.value === "BACKGROUND"){
-				button.value = "ERASER"
-			}
-
-			button.addEventListener("click", function () {
-				document
-					.getElementById(SELECTED_ELEM.toString())
-					.classList.remove("selectedElementButton");
-				button.classList.add("selectedElementButton");
-				SELECTED_ELEM = parseInt(button.id, 10);
-			});
-			elementIndex++;
+		if (button.value === "BACKGROUND") {
+			button.value = "ERASER";
 		}
+
+		// Get the 32-bit unsigned integer color from menuLabel[elemType]
+		const colorInt = menuLabel[elemType];
+
+		// Extract the RGBA components from the 32-bit integer
+		const r = colorInt & 0xff;
+		const g = (colorInt >> 8) & 0xff;
+		const b = (colorInt >> 16) & 0xff;
+		const a = (colorInt >> 24) & 0xff;
+
+		// Create the RGBA color string in CSS format
+		const colorString = `rgba(${r}, ${g}, ${b}, ${a / 255})`;
+
+		// Set the background color of the button
+		button.style.backgroundColor = colorString;
+
+		const isDarker = r + g + b < 384
+
+		button.style.color = isDarker ? "white" : "black";
+
+		button.addEventListener("click", function () {
+			document
+				.getElementById(SELECTED_ELEM.toString())
+				.classList.remove("selectedElementButton");
+			button.classList.add("selectedElementButton");
+			SELECTED_ELEM = parseInt(button.id, 10);
+		});
 	}
+
 	document.getElementById(SELECTED_ELEM.toString()).click();
 
 	const eraserCheck = document.getElementById("eraserCheck")
@@ -96,8 +110,6 @@ function initMenu() {
 	clearButton.onclick = clearCanvas
 
 	const penSize = document.getElementById("penSize")
-	penSize.min = 0
-	penSize.max = 1000
 	penSize.value = PENSIZE
 	penSize.addEventListener("input", function () {
 		PENSIZE = parseInt(penSize.value, 10)

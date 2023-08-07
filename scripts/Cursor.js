@@ -625,23 +625,14 @@ class TouchCursor extends Cursor {
 		const touchX = touch.clientX - rect.left;
 		const touchY = touch.clientY - rect.top;
 
-		console.log("TouchX:", touchX, "TouchY:", touchY, "Before Scaling X:", Math.round(touchX), "Before Scaling Y:", Math.round(touchY));
-
 		let x = Math.round(touchX * screen_scale);
 		let y = Math.round(touchY * screen_scale);
-
-		console.log("After Scaling X:", x, "After Scaling Y:", y);
 
 		if (x < 0) x = 0;
 		else if (x >= modelCanvas.width) x = modelCanvas.width - 1;
 
 		if (y < 0) y = 0;
 		else if (y >= modelCanvas.height) y = modelCanvas.height - 1;
-
-		console.log("Final X:", x, "Final Y:", y);
-
-		console.log("modelCanvas width:", modelCanvas.width);
-		console.log("modelCanvas height:", modelCanvas.height);
 
 		return [x, y];
 	}
