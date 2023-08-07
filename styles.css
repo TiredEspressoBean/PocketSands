@@ -29,20 +29,15 @@ html, body, div, canvas, p, input {
     cursor: pointer;
 }
 
-/* Hover effect for all buttons */
-* input[type="button"]:hover {
-    opacity: 0.8;
-}
-
 /* Active (clicked) effect for all buttons */
 * input[type="button"]:active {
     transform: scale(0.95);
 }
 
 /* Style for the track of the range input */
-input[type="range"].custom-range {
+* input[type="range"]{
     -webkit-appearance: none;
-    width: 100%;
+    width: 140px;
     height: 10px;
     background-color: #ddd;
     border-radius: 5px;
@@ -51,9 +46,8 @@ input[type="range"].custom-range {
     margin: 0;
 }
 
-input[type="range"].custom-range {
+* input[type="range"]{
     -webkit-appearance: none;
-    width: 100%;
     height: 10px;
     background-color: #ddd;
     border-radius: 5px;
@@ -63,7 +57,7 @@ input[type="range"].custom-range {
 }
 
 /* Style the track of the range input */
-input[type="range"].custom-range::-webkit-slider-runnable-track {
+input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
     height: 10px;
     background-color: #007bff;
@@ -71,7 +65,7 @@ input[type="range"].custom-range::-webkit-slider-runnable-track {
 }
 
 /* Style the thumb (handle) of the range input */
-input[type="range"].custom-range::-webkit-slider-thumb {
+* input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 20px;
     height: 20px;
@@ -82,7 +76,7 @@ input[type="range"].custom-range::-webkit-slider-thumb {
 }
 
 /* Style the value of the range input (the tooltip) */
-input[type="range"].custom-range::-webkit-slider-thumb::after {
+input[type="range"]::-webkit-slider-thumb::after {
     content: attr(value);
     position: absolute;
     top: -30px;
@@ -99,17 +93,17 @@ input[type="range"].custom-range::-webkit-slider-thumb::after {
 }
 
 /* Show the value (tooltip) on hover */
-input[type="range"].custom-range:hover::-webkit-slider-thumb::after {
+* input[type="range"]:hover::-webkit-slider-thumb::after {
     opacity: 1;
 }
 
 /* Hide the default range input tooltip */
-input[type="range"].custom-range::-webkit-slider-thumb {
+* input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
 }
 
 /* Hide the focus outline for webkit browsers */
-input[type="range"].custom-range:focus {
+* input[type="range"]:focus {
     outline: none;
 }
 
@@ -153,7 +147,7 @@ input[type="range"].custom-range:focus {
 }
 
 .selectedElementButton {
-    outline: 1px solid black;
+    outline: 3px solid black;
 }
 
 .Controls {
@@ -167,7 +161,7 @@ input[type="range"].custom-range:focus {
 .Controls > div {
     display: flex;
     align-items: center;
-    margin: 5px;
+    margin: 10px;
 }
 
 .overwriteSwitch {
@@ -208,16 +202,17 @@ input[type="range"].custom-range:focus {
     background-color: #ccc;
     border-radius: 20px;
     transition: 0.4s;
+    height:22px;
 }
 
 /* Style the circle (dot) inside the slider */
 .slider::before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
-    left: 4px;
-    bottom: 4px;
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
     background-color: white;
     border-radius: 50%;
     transition: 0.4s;
@@ -229,7 +224,7 @@ input:checked + .slider {
 }
 
 input:checked + .slider::before {
-    transform: translateX(14px);
+    transform: translateX(18px);
 }
 
 #FPScounter {
@@ -270,7 +265,6 @@ input:checked + .slider::before {
 
     .Controls:nth-child(2) {
         flex-grow: 0;
-        margin-right: 0;
         order: 2;
     }
 }

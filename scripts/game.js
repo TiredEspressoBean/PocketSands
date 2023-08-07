@@ -147,14 +147,16 @@ function saveGame(){
 
 function loadGame(){
 	if (!gameSaved) return
-	
-	//particles.inactiveAll()
+
+	particles.inactiveAll()
 	
 	const xStop = MAX_IDX + 1
 	for (let x = 0; x !== xStop; x++) renderImageData32[x] = saveImageData32[x]
 }
 
 function clearCanvas(){
+	particles.inactiveAll()
+
 	const xStop = MAX_IDX + 1
 	for (let x = 0; x !== xStop; x++) renderImageData32[x] = BACKGROUND
 }

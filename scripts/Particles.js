@@ -43,7 +43,7 @@ function METHANE_INIT(particleProperties, i){
 function METHANE_ACTION(particle, i){
 
 	particle.drawCircle(particle.size)
-	if (particle.actionIterations > 2) particles.makeParticleInactive(particle)
+	if (particle.actionIterations > 2) particles.makeParticleInactive(particle, i)
 }
 
 class TreeType {
@@ -299,12 +299,6 @@ class ParticleList {
 		this.pool = new Array(poolSize);
 		this.activeSize = 0;
 		this.inactiveSize = poolSize;
-		this.particleCounts = new Uint32Array(particleDictionary.length);
-
-		/* This probably isn't necessary, but I don't trust JavaScript */
-		for (let i = 0; i < this.particleCounts.length; i++) {
-			this.particleCounts[i] = 0;
-		}
 
 		// Initialize the pool with particles
 		for (let i = 0; i < poolSize; i++) {
@@ -388,7 +382,6 @@ class ParticleList {
 		particle.y = particleProperties.y;
 		particle.i = particleProperties.i;
 		particle.branchLength = particleProperties.branchLength
-		this.particleCounts[type]++;
 
 		// Return the particle
 		return particle;
@@ -397,13 +390,24 @@ class ParticleList {
 
 	makeParticleInactive(particle, i) {
 		particle.active = false;
-		this.particleCounts[particle.type]--;
 		particle.type = "UNKNOWN_PARTICLE";
 
 		// Move the particle to the inactive pool
-		this.pool[i] = particle;
-		this.activeSize--;
-		this.inactiveSize++;
+		particles.pool[i] = particle;
+		particles.activeSize--;
+		particles.inactiveSize++;
+	}
+
+	inactiveAll(){
+		this.pool.forEach(function(particle){
+			if (particle.active === true){
+				particle.active = false;
+				particle.type = "UNKNOWN_PARTICLE";
+
+				particles.activeSize--;
+				particles.inactiveSize++;
+			}
+		})
 	}
 }
 
