@@ -1,7 +1,7 @@
 {
   "version": ".1",
   "description": "A small physics game in the vein of the falling sand genre.",
-  "theme_color": "#ecd59b",
+  "theme_color": "#ECD59B",
   "background_color": "#fbfbfb",
   "display": "standalone",
   "scope": "/",
@@ -12,7 +12,8 @@
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icon-256x256.png",
