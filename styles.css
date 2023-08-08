@@ -240,7 +240,7 @@ input:checked + .slider::before {
     margin-top: 20px;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 728px) {
     body {
         font-size: 14px;
     }
