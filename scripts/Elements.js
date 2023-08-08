@@ -25,7 +25,7 @@ elementDict = {
 	WATER: {color: inGameColors(35, 70, 180), name: "WATER", action: WATER_ACTION, gasPermeable: true},
 	FIRE: {color: inGameColors(180, 5, 20), name: "FIRE", action: FIRE_ACTION, gasPermeable: true},
 	FUSE: {color: inGameColors(90, 90, 90), name: "FUSE", action: FUSE_ACTION, gasPermeable: false},
-	VINE: {color: inGameColors(20, 160, 0), name: "VINE", action: PLANT_ACTION, gasPermeable: false},
+	VINE: {color: inGameColors(20, 160, 0), name: "VINE", action: VINE_ACTION, gasPermeable: false},
 	STEAM: {color: inGameColors(220, 220, 240), name: "STEAM", action: STEAM_ACTION, gasPermeable: false},
 	SALT: {color: inGameColors(230, 220, 220), name: "SALT", action: SALT_ACTION, gasPermeable: false},
 	SALT_WATER: {
@@ -144,7 +144,7 @@ function FIRE_ACTION(x, y, i) {
 		}
 	}
 	if (random() < 50) {
-		const plantLocation = borderingAdjacent(x, y, i, PLANT)
+		const plantLocation = borderingAdjacent(x, y, i, VINE)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = FIRE
 			return
@@ -196,7 +196,7 @@ function FIRE_ACTION(x, y, i) {
 	}
 
 	if (random() < 10) {
-		let sandLoc = borderingAdjacent(x, Y, i, SAND)
+		let sandLoc = borderingAdjacent(x, y, i, SAND)
 		if (sandLoc !== -1) {
 			renderImageData32[i] = GLASS
 		}
@@ -207,7 +207,7 @@ function FUSE_ACTION(x, y, i) {
 
 }
 
-function PLANT_ACTION(x, y, i) {
+function VINE_ACTION(x, y, i) {
 	if (random() >= 20) doGrow(x, y, i, WATER, 15)
 
 	if (random() <= 3) {
@@ -218,16 +218,16 @@ function PLANT_ACTION(x, y, i) {
 				let spread = __pickRandValid(upSpread, downSpread)
 				const sideSpread = adjacent(x, y, i, BACKGROUND)
 				spread = __pickRandValid(spread, sideSpread)
-				renderImageData32[spread] = PLANT
+				renderImageData32[spread] = VINE
 			} else {
-				if (countPixelsOfTypeAround(PLANT, x, y, i) < 4 || countPixelsOfTypeAround(BACKGROUND, x, y, i) > 5) {
+				if (countPixelsOfTypeAround(VINE, x, y, i) < 4 || countPixelsOfTypeAround(BACKGROUND, x, y, i) > 5) {
 					if (countPixelsOfTypeAround(FIRE, x, y, i) < 1) {
 						const sideSpread = adjacent(x, y, i, BACKGROUND)
 						const upSpread = aboveAdjacent(x, y, i, BACKGROUND)
 						const downSpread = belowAdjacent(x, y, i, BACKGROUND)
 						let spread = __pickRandValid(upSpread, sideSpread)
 						spread = __pickRandValid(spread, downSpread)
-						renderImageData32[spread] = PLANT
+						renderImageData32[spread] = VINE
 					}
 				}
 			}
