@@ -8,7 +8,7 @@ let OVERWRITE_ENABLED;
 
 const menuItems = [
 	"WALL", "SAND", "WATER", "FIRE",
-	"FUSE", "PLANT", "SALT", "OIL",
+	"FUSE", "VINE", "SALT", "OIL",
 	"SOIL", "LAVA", "C4", "METHANE",
 	"ACID", "ICE", "SEED", "PRODUCER",
 	"BACKGROUND"

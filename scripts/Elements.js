@@ -25,7 +25,7 @@ elementDict = {
 	WATER: {color: inGameColors(35, 70, 180), name: "WATER", action: WATER_ACTION, gasPermeable: true},
 	FIRE: {color: inGameColors(180, 5, 20), name: "FIRE", action: FIRE_ACTION, gasPermeable: true},
 	FUSE: {color: inGameColors(90, 90, 90), name: "FUSE", action: FUSE_ACTION, gasPermeable: false},
-	PLANT: {color: inGameColors(20, 160, 0), name: "VINE", action: PLANT_ACTION, gasPermeable: false},
+	VINE: {color: inGameColors(20, 160, 0), name: "VINE", action: PLANT_ACTION, gasPermeable: false},
 	STEAM: {color: inGameColors(220, 220, 240), name: "STEAM", action: STEAM_ACTION, gasPermeable: false},
 	SALT: {color: inGameColors(230, 220, 220), name: "SALT", action: SALT_ACTION, gasPermeable: false},
 	SALT_WATER: {
@@ -196,7 +196,7 @@ function FIRE_ACTION(x, y, i) {
 	}
 
 	if (random() < 10) {
-		let sandLoc = borderingAdjacent(x, y, i, SAND)
+		let sandLoc = borderingAdjacent(x, Y, i, SAND)
 		if (sandLoc !== -1) {
 			renderImageData32[i] = GLASS
 		}
