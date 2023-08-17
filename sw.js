@@ -1,4 +1,8 @@
-// Service Worker Script
+/**
+ * Service workers scripting for some basic functions
+ */
+
+
 const CACHE_NAME = 'The-sand-trap';
 
 const urlsToCache = [
@@ -8,12 +12,15 @@ const urlsToCache = [
 	'scripts/canvasConfig.js',
 	'scripts/Cursor.js',
 	'scripts/Elements.js',
-	'scripts/game.js',
+	'scripts/GameEngine.js',
 	'scripts/MenuElements.js',
 	'scripts/Particles.js',
 	'scripts/utilities.js'
 ];
 
+/**
+ * Caches everything on install
+ */
 self.addEventListener('install', (event) => {
 	event.waitUntil(
 		caches.open(CACHE_NAME).then((cache) => {
@@ -22,6 +29,9 @@ self.addEventListener('install', (event) => {
 	);
 });
 
+/**
+ * Upon fetch request checks if there's already a cache, if not updates the sand trap cache
+ */
 self.addEventListener('fetch', (event) => {
 	event.respondWith(
 		caches.match(event.request).then((response) => {

@@ -1,3 +1,30 @@
+/**
+ * COMPENDIUM OF THE PARTICLES
+ *
+ * This file is broken up into ___ sections
+ *      Initialization      - Describing the elements and making them very easily accessible
+ *      Description         - Giving the particles their behaviours
+ *      Classes             - Set up of the base particle class and the particles class which handles the particle pools
+ *      Update Particles    - Function that controls how the particles are updated
+ *
+ *
+ * As elements are very simple pixels that have a rudimentary understanding of their surroundings, particles are then
+ * used for more complicated circumstances, like larger explosions than the set of adjacent particles and trees.
+ *
+ * PARTICLE ADDING TUTORIAL - Add new particles by first adding any new colors(elements) that will be used on the
+ * canvas to the particleDictionary , then adding the init and Action to describe their behavior. Their behavior should
+ * be more complicated than cellular automata rules so use the particle class for the storing of information and
+ * describing how they operate.
+ *
+ */
+
+
+
+const PAINTABLE_PARTICLE_COLORS = [FIRE, BRANCH, LEAF];
+
+/**
+ * Add new particles here
+ */
 const particleDictionary = {
 	UNKNOWN_PARTICLE:{INIT: UNKNOWN_PARTICLE_INIT, action:UNKNOWN_PARTICLE_ACTION},
 	C4_PARTICLE:{INIT: C4_PARTICLE_INIT, action: C4_PARTICLE_ACTION},
@@ -6,26 +33,53 @@ const particleDictionary = {
 }
 Object.freeze(particleDictionary)
 
+/**
+ * Spins up the particles and the particle canvas
+ */
+function initParticles() {
+	particles = new ParticleList(MAX_NUM_PARTICLES);
+
+	// Set the width and height of the offscreenParticleCanvas
+	offscreenParticleCanvas.width = width;
+	offscreenParticleCanvas.height = height;
+}
+
+/**
+ * Base particle that shouldn't really ever be used
+ * @param particle
+ * @constructor
+ */
 function UNKNOWN_PARTICLE_INIT(particle) {}
 function UNKNOWN_PARTICLE_ACTION(particle) {
 	throw "Unknown particle";
 }
 
-function C4_PARTICLE_INIT(particleProperties) {
-	particleProperties.color = FIRE;
+/**
+ * Initiailizer for the C4 particles properties
+ * @param particle
+ * @constructor
+ */
+function C4_PARTICLE_INIT(particle) {
+	particle.color = FIRE;
 
 	const rand = Math.random() * 10000;
 	if (rand < 9000) {
-		particleProperties.size = Math.random() * 10 + 3;
+		particle.size = Math.random() * 10 + 3;
 	} else if (rand < 9500) {
-		particleProperties.size = Math.random() * 32 + 3;
+		particle.size = Math.random() * 32 + 3;
 	} else if (rand < 9800) {
-		particleProperties.size = Math.random() * 64 + 3;
+		particle.size = Math.random() * 64 + 3;
 	} else {
-		particleProperties.size = Math.random() * 128 + 3;
+		particle.size = Math.random() * 128 + 3;
 	}
 }
 
+/**
+ * Behavior for the C4 particle
+ * @param particle
+ * @param i Where the particle is in terms of the pool so we don't need to go searching for it
+ * @constructor
+ */
 function C4_PARTICLE_ACTION(particle, i) {
 	particle.drawCircle(particle.size);
 
@@ -35,37 +89,40 @@ function C4_PARTICLE_ACTION(particle, i) {
 	}
 }
 
-function METHANE_INIT(particleProperties, i){
-	particleProperties.color = FIRE
-	particleProperties.size = (random())/10 + 10
+/**
+ * Initiailizer for the Methane particles properties
+ * @param particle
+ * @constructor
+ */
+function METHANE_INIT(particle){
+	particle.color = FIRE
+	particle.size = (random())/10 + 10
 }
 
+/**
+ * Behavior for the Methane particle
+ * @param particle
+ * @param i Where the particle is in terms of the pool so we don't need to go searching for it
+ * @constructor
+ */
 function METHANE_ACTION(particle, i){
 
 	particle.drawCircle(particle.size)
 	if (particle.actionIterations > 2) particles.makeParticleInactive(particle, i)
 }
 
+/**
+ * Base class for the Tree particle system
+ */
 class TreeType {
 	constructor() {
 		throw "Should never actually instantiate this.";
 	}
-
-	/** @nocollapse */
-	static initTreeParticle(p, oldP) {}
-
-	/** @nocollapse */
-	static branchAngles(treeParticle) {
-		throw "Branch angles not implemented.";
-	}
-
-	/** @nocollapse */
-	static branchSpacingFactor(treeParticle) {
-		throw "Branch spacing factor not implemented.";
-	}
 }
 
-/* Standard tree */
+/**
+ * Fairly normal looking tree
+ */
 class Tree0 extends TreeType {
 	static lSystemRule = 'X->F[-X][+X]';
 
@@ -88,10 +145,14 @@ class Tree0 extends TreeType {
 	}
 }
 
+/**
+ * Leaning tree from left to right
+ */
 class Tree1 extends TreeType {
 	static lSystemRule = 'F=FF, X=F-[[X]+X]+F[+FX]-X'
 
 	/** @ncollapse */
+	// Apply L-system rule to generate initial state of the tree particle
 	static initTreeParticle(p, oldP){
 		if (!p.treeState){
 			p.angle = -HALF_PI
@@ -99,6 +160,8 @@ class Tree1 extends TreeType {
 			p.branchLength = 2
 		}
 	}
+
+	// Helper function to apply L-system rule
 	static applyLSystemRule(axiom, iterations) {
 		let result = axiom;
 		for (let i = 0; i < iterations; i++) {
@@ -109,6 +172,9 @@ class Tree1 extends TreeType {
 	}
 }
 
+/**
+ * Kind of a jungly looking tree that 'swirls' around a central axis
+ */
 class Tree2 extends TreeType {
 	static lSystemRule = 'F=F[+F]F[-F]F';
 
@@ -137,8 +203,14 @@ const TREE_TYPES = [
 	Tree1,
 	Tree2,
 ];
+
 const NUM_TREE_TYPES = TREE_TYPES.length;
 
+/**
+ * Initializer for the Tree particles
+ * @param particle
+ * @constructor
+ */
 function TREE_PARTICLE_INIT(particle) {
 	particle.color = BRANCH;
 	particle.size = Math.floor(Math.random() * 4) + 2;
@@ -161,6 +233,11 @@ function TREE_PARTICLE_INIT(particle) {
 	TREE_TYPES[particle.treeType].initTreeParticle(particle, null);
 }
 
+/**
+ * Behavior of the tree particles
+ * @param particle
+ * @constructor
+ */
 function TREE_PARTICLE_ACTION(particle) {
 	// Use the current state of the tree particle, obtained from L-system rule
 	let currentState = particle.treeState;
@@ -220,7 +297,9 @@ function TREE_PARTICLE_ACTION(particle) {
 }
 
 
-
+/**
+ * Base for the paritcle that is augmented during the particle init above
+ */
 class Particle {
 	constructor() {
 		this.type = "UNKNOWN_PARTICLE";
@@ -241,6 +320,11 @@ class Particle {
 		this.reinitialized = false;
 	}
 
+	/**
+	 * Go back from hex color to the rgb value which the canvas api uses since we're doing circles and such instead
+	 * of manipulating each pixel
+	 * @param hexColor
+	 */
 	setColor(hexColor) {
 		if (PAINTABLE_PARTICLE_COLORS.includes(hexColor)) {
 			this.color = hexColor;
@@ -254,35 +338,6 @@ class Particle {
 		}
 	}
 
-	setRandomColor(whitelist) {
-		const colorIdx = Math.floor(Math.random() * whitelist.length);
-		this.setColor(whitelist[colorIdx]);
-	}
-
-	offCanvas() {
-		const x = this.x;
-		const y = this.y;
-		return x < 0 || x > MAX_X_IDX || y < 0 || y > MAX_Y_IDX;
-	}
-
-	setVelocity(velocity, angle) {
-		this.velocity = velocity;
-		this.angle = angle;
-		this.xVelocity = velocity * Math.cos(angle);
-		this.yVelocity = velocity * Math.sin(angle);
-	}
-
-	aboutToHit() {
-		const radius = this.size / 2;
-		const theta = Math.atan2(this.yVelocity, this.xVelocity);
-		const xPrime = this.x + Math.cos(theta) * radius;
-		const yPrime = this.y + Math.sin(theta) * radius;
-		const idx = Math.round(xPrime) + Math.round(yPrime) * width;
-
-		if (idx < 0 || idx > MAX_IDX) return BACKGROUND;
-
-		return renderImageData32[idx];
-	}
 
 	drawCircle(radius) {
 		offscreenParticleCtx.beginPath();
@@ -294,6 +349,12 @@ class Particle {
 
 }
 
+/**
+ * Pool based data structure that contains the pool of all possible particles and manipulates them.
+ * Went with this structure so I'm not constantly making new objects, just recycling the ones I already made and have
+ * a natural limiter to the amount of particles on the screen possible. Good method for dealing with javascript garbage
+ * collection causing spikes in lag.
+ */
 class ParticleList {
 	constructor(poolSize) {
 		this.pool = new Array(poolSize);
@@ -310,6 +371,11 @@ class ParticleList {
 		return new Particle()
 	}
 
+	/**
+	 * Finds the first inactive particle it can and returns it, while accounting internally the change made so we don't
+	 * end up using more than is actually available
+	 * @returns {any|null}
+	 */
 	getInactiveParticle() {
 		if (this.inactiveSize === 0) return null;
 
@@ -326,68 +392,44 @@ class ParticleList {
 		return null; // If no UNKNOWN_PARTICLE is found, return null
 	}
 
+	/**
+	 * Creates a 'new' particle based on the properties described in the respective init
+	 * @param type
+	 * @param x X coordinate
+	 * @param y Y coorindate
+	 * @param i Index in the pool
+	 * @returns {*|null}
+	 */
 	addActiveParticle(type, x, y, i) {
 		const particle = this.getInactiveParticle();
 		if (!particle) return null;
 
-		// Create an object to hold particle properties
-		const particleProperties = {
-			color: 0,
-			size: 0,
-			velocity: 0,
-			angle: 0,
-			xVelocity: 0,
-			yVelocity: 0,
-			generation: 0,
-			branchSpacing: 0,
-			maxBranches: 0,
-			nextBranch: 0,
-			branches: 0,
-			treeType: 0,
-			angleStack: [],
-		};
-
-		particleProperties.type = type;
-		particleProperties.initX = x;
-		particleProperties.initY = y;
-		particleProperties.x = x;
-		particleProperties.y = y;
-		particleProperties.i = i;
-
-		// Call the particle initializer
-		particleDictionary[type]["INIT"](particleProperties);
-
-		// Set particle properties
+		//Set the base properties of the particle
+		particle.type = type;
+		particle.initX = x;
+		particle.initY = y;
+		particle.x = x;
+		particle.y = y;
+		particle.i = i;
 		particle.reinitialized = false;
 		particle.actionIterations = 0;
-		particle.type = type;
-		particle.setColor(particleProperties.color);
-		particle.size = particleProperties.size;
-		particle.velocity = particleProperties.velocity;
-		particle.angle = particleProperties.angle;
-		particle.xVelocity = particleProperties.xVelocity;
-		particle.yVelocity = particleProperties.yVelocity;
-		particle.generation = particleProperties.generation;
-		particle.branchSpacing = particleProperties.branchSpacing;
-		particle.maxBranches = particleProperties.maxBranches;
-		particle.nextBranch = particleProperties.nextBranch;
-		particle.branches = particleProperties.branches;
-		particle.treeType = particleProperties.treeType;
-		particle.treeState = particleProperties.treeState
-		particle.angleStack = particleProperties.angleStack;
-		particle.positionStack = particleProperties.positionStack
-		particle.initX = particleProperties.initX;
-		particle.initY = particleProperties.initY;
-		particle.x = particleProperties.x;
-		particle.y = particleProperties.y;
-		particle.i = particleProperties.i;
-		particle.branchLength = particleProperties.branchLength
+
+		// Call the particle initializer
+		particleDictionary[type]["INIT"](particle);
+
+		// Set particle color properties
+		particle.setColor(particle.color);
 
 		// Return the particle
 		return particle;
 	}
 
-
+	/**
+	 * Makes the particle no longer of the specified type that it was and augments the respective sizes of the lists
+	 * for internal accounting
+	 * @param particle
+	 * @param i
+	 */
 	makeParticleInactive(particle, i) {
 		particle.active = false;
 		particle.type = "UNKNOWN_PARTICLE";
@@ -398,6 +440,9 @@ class ParticleList {
 		particles.inactiveSize++;
 	}
 
+	/**
+	 * Zooms through the whole array and makes everything inactive
+	 */
 	inactiveAll(){
 		this.pool.forEach(function(particle){
 			if (particle.active === true){
@@ -413,16 +458,9 @@ class ParticleList {
 
 let particles = new ParticleList(MAX_NUM_PARTICLES)
 
-const PAINTABLE_PARTICLE_COLORS = [FIRE, BRANCH, LEAF];
-
-function initParticles() {
-	particles = new ParticleList(MAX_NUM_PARTICLES);
-
-	// Set the width and height of the offscreenParticleCanvas
-	offscreenParticleCanvas.width = width;
-	offscreenParticleCanvas.height = height;
-}
-
+/**
+ * Function that goes through the particle pool, calls their actions, and puts the actions onto the modelCanvas.
+ */
 function updateParticles() {
 	if (particles.activeSize === 0) return;
 	const canvasWidth = offscreenParticleCanvas.width;
@@ -435,21 +473,27 @@ function updateParticles() {
 	offscreenParticleCtx.fill();
 
 	const particleSize = particles.pool.length;
+	let activeSizeIterable = particles.activeSize
 
+	// We go through the whole pool which is of relatively modest size and decrement the activeSizeIterable and stop
+	// once we have gone through each particle
 	for (let i = 0; i < particleSize; i++) {
-		const particle = particles.pool[i];
-		if (particle.type !== "UNKNOWN_PARTICLE") {
-			particle.actionIterations++;
-			particleDictionary[particle.type]["action"](particle, i);
+		if (activeSizeIterable !== 0) {
+			const particle = particles.pool[i];
+			if (particle.type !== "UNKNOWN_PARTICLE") {
+				particle.actionIterations++;
+				particleDictionary[particle.type]["action"](particle, i);
 
-			// Add the following check to limit branches for TREE_PARTICLE
-			if (particle.type === "TREE_PARTICLE" && particle.branches >= particle.maxBranches) {
-				particles.makeParticleInactive(particle, i);
+				// Add the following check to limit branches for TREE_PARTICLE
+				if (particle.type === "TREE_PARTICLE" && particle.branches >= particle.maxBranches) {
+					particles.makeParticleInactive(particle, i);
+				}
+				activeSizeIterable--
 			}
 		}
 	}
 
-	/* move particle draw state to main canvas */
+	//Start moving the particle image Data to the modelCanvas
 	const particleImageData = offscreenParticleCtx.getImageData(
 		0,
 		0,
@@ -458,50 +502,21 @@ function updateParticles() {
 	);
 	const particleImageData32 = new Uint32Array(particleImageData.data.buffer);
 	let x, y;
-	let __yOffset = 0;
+	let yOffset = 0;
 	const aliasingSearchDistance = 3;
+	//Go through the canvas pixel by pixel and if not background aka all black then place the pixel on the modelCanvas
 	for (y = 0; y !== canvasHeight; y++) {
-		const yOffset = __yOffset; /* optimization: make const copy */
 		for (x = 0; x !== canvasWidth; x++) {
 			const i = x + yOffset;
 			const particleColor = particleImageData32[i];
 
+			//If background continue
 			if (particleColor === 0xff000000) continue;
 			if (PAINTABLE_PARTICLE_COLORS.includes(particleColor)) {
 				renderImageData32[i] = particleColor;
 				continue;
-			} else {
-				let searchColor;
-				if (x - aliasingSearchDistance >= 0) {
-					searchColor = particleImageData32[i - aliasingSearchDistance];
-					if (PAINTABLE_PARTICLE_COLORS.includes(particleColor)) {
-						renderImageData32[i] = searchColor;
-						continue;
-					}
-				}
-				if (x + aliasingSearchDistance <= MAX_X_IDX) {
-					searchColor = particleImageData32[i + aliasingSearchDistance];
-					if (PAINTABLE_PARTICLE_COLORS.includes(particleColor)) {
-						renderImageData32[i] = searchColor;
-						continue;
-					}
-				}
-				if (y - aliasingSearchDistance >= 0) {
-					searchColor = particleImageData32[i - aliasingSearchDistance * width];
-					if (PAINTABLE_PARTICLE_COLORS.includes(particleColor)) {
-						renderImageData32[i] = searchColor;
-						continue;
-					}
-				}
-				if (y + aliasingSearchDistance <= MAX_Y_IDX) {
-					searchColor = particleImageData32[i + aliasingSearchDistance * width];
-					if (PAINTABLE_PARTICLE_COLORS.includes(particleColor)) {
-						renderImageData32[i] = searchColor;
-						continue;
-					}
-				}
 			}
 		}
-		__yOffset += canvasWidth;
+		yOffset += canvasWidth;
 	}
 }

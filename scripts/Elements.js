@@ -1,4 +1,21 @@
-// noinspection StatementWithEmptyBodyJS
+/**
+ * COMPENDIUM OF THE ELEMENTS
+ *
+ * This file is broken up into 3 sections,
+ *      Initialization      Describes the elements(color, name, etc.)
+ *      Behaviors           Describes how the elements interact with the world
+ *      Helpers             Functions that assist the functions in the behaviors section(like describing gravity)
+ *
+ * Each element is placed within the ElementDict array, with their name, color(Hexadecimal representation of ARGB),
+ * name, their 'ACTION' which is the behavior function, and whether gases rise up through them. This dictionary is then
+ * switched around after the color has been found for each element in hex, so the color code is the key for the
+ * dictionary, and the behavior function is assigned to each name of the different elements as constants e.g.
+ * const WALL = WALL_ACTION.
+ *
+ * ADDING ELEMENTS TUTORIAL - Add the new element to the ElementActionDict, then at the end of the behavior section add
+ * their accompanying ACTION function. If you want to add the element to the menu, that is done in
+ * MenuElements.js.
+ */
 
 /**
  * Takes RGB code and spits out ARGB code that the html canvas can use as the color
@@ -12,12 +29,10 @@ function inGameColors(r, g, b) {
 	return alpha + (b << 16) + (g << 8) + r;
 }
 
-//TODO:Remaining basic elements
-//  If this isn't fast enough we'll use the alpha channel instead to list the index for the element
-
 /**
- * Main elements directory containing the color, name, and what its function for behavior is
+ * Main elements directory containing the color, name, and what its function for behavior is.
  **/
+//TODO Not 100% about gasPermeable, see about changing or removing
 elementDict = {
 	BACKGROUND: {color: inGameColors(0, 0, 0), name: "BACKGROUND", action: BACKGROUND_ACTION, gasPermeable: false},
 	WALL: {color: inGameColors(127, 127, 127), name: "WALL", action: WALL_ACTION, gasPermeable: false},
@@ -28,12 +43,7 @@ elementDict = {
 	VINE: {color: inGameColors(20, 160, 0), name: "VINE", action: VINE_ACTION, gasPermeable: false},
 	STEAM: {color: inGameColors(220, 220, 240), name: "STEAM", action: STEAM_ACTION, gasPermeable: false},
 	SALT: {color: inGameColors(230, 220, 220), name: "SALT", action: SALT_ACTION, gasPermeable: false},
-	SALT_WATER: {
-		color: inGameColors(130, 145, 200),
-		name: "SALT_WATER",
-		action: SALT_WATER_ACTION,
-		gasPermeable: false
-	},
+	SALT_WATER: {color: inGameColors(130, 145, 200), name: "SALT_WATER", action: SALT_WATER_ACTION, gasPermeable: false},
 	OIL: {color: inGameColors(90, 45, 45), name: "OIL", action: OIL_ACTION, gasPermeable: false},
 	SOIL: {color: inGameColors(115, 75, 50), name: "SOIL", action: SOIL_ACTION, gasPermeable: false},
 	MUD: {color: inGameColors(75, 50, 25), name: "MUD", action: MUD_ACTION, gasPermeable: false},
@@ -48,18 +58,14 @@ elementDict = {
 	SEED: {color: inGameColors(150, 150, 75), name: "SEED", action: SEED_ACTION, gasPermeable: true},
 	LEAF: {color: inGameColors(58, 95, 11), name: "LEAF", action: LEAF_ACTION, gasPermeable: false},
 	BRANCH: {color: inGameColors(85, 65, 35), name: "BRANCH", action: BRANCH_ACTION, gasPermeable: false}
-	// ANT:{color:inGameColors(190,100,190), name:"ANT", action:ANT_ACTION, gasPermeable:false},
-	// ANT_NEST:{color:inGameColors(75,50, 75), name:"ANT_NEST", action:ANT_NEST_ACTION, gasPermeable:false}
 }
 
 
-// If I want the elementActionDict to be an array instead of a dict, I'll need to create it during the init.
-// For each in elementDict, get or create the color, bit shift,
+
 const elementActionDict = {};
 
 /**
  * Asserts to the window pointers for the elements and their colors. Question is then how can this be made easier?
- * TODO Make this line of code not necessary, somehow?
  */
 for (let i in elementDict) {
 	window[elementDict[i]["name"]] = elementDict[i]["color"]
@@ -88,6 +94,12 @@ function initElements() {
 	Object.freeze(elementDict)
 }
 
+
+/**
+ *  BEHAVIORS OF THE ELEMENTS - ALL 'ACTION' FUNCTIONS GO INTO THIS SECTION
+ */
+
+
 /**
  * Simple as can be, if it's called on something has gone Very Wrong
  * @param x
@@ -105,7 +117,7 @@ function WALL_ACTION(x, y, i) {
  * Function that simulates the physics rules of sand.
  * @param x X coordinate
  * @param y Y coordinate
- * @param i Max elements in array possible
+ * @param i Index within the canvas array
  * @constructor
  */
 function SAND_ACTION(x, y, i) {
@@ -120,14 +132,30 @@ function SAND_ACTION(x, y, i) {
 	if (doGravity(x, y, i, true, 70)) ;
 }
 
+/**
+ * Function for behavior of watere
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param i Index within the array
+ * @constructor
+ */
 function WATER_ACTION(x, y, i) {
 	if (doGravity(x, y, i, true, 95)) ;
 	if (doDensityLiquid(x, y, i, OIL, 70, 80)) ;
 }
 
+/**
+ * Function for the behavior of fire
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function FIRE_ACTION(x, y, i) {
 
-	if (random() < 75) {
+	let rand = random()
+
+	if (rand < 75) {
 		let waterLocation = bordering(x, y, i, WATER)
 		if (waterLocation !== -1) {
 			renderImageData32[i] = BACKGROUND
@@ -136,35 +164,35 @@ function FIRE_ACTION(x, y, i) {
 		}
 	}
 
-	if (random() < 40) {
+	if (rand < 40) {
 		const fuseLocation = borderingAdjacent(x, y, i, FUSE);
 		if (fuseLocation !== -1) {
 			renderImageData32[fuseLocation] = FIRE
 			return
 		}
 	}
-	if (random() < 50) {
+	if (rand < 50) {
 		const plantLocation = borderingAdjacent(x, y, i, VINE)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = FIRE
 			return
 		}
 	}
-	if (random() < 25) {
+	if (rand < 25) {
 		const plantLocation = borderingAdjacent(x, y, i, SEED)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = FIRE
 			return
 		}
 	}
-	if (random() < 25) {
+	if (rand < 25) {
 		const plantLocation = borderingAdjacent(x, y, i, LEAF)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = FIRE
 			return
 		}
 	}
-	if (random() < 25) {
+	if (rand < 25) {
 		const plantLocation = borderingAdjacent(x, y, i, BRANCH)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = FIRE
@@ -172,7 +200,7 @@ function FIRE_ACTION(x, y, i) {
 		}
 	}
 
-	if (random() < 70) {
+	if (rand < 70) {
 		const plantLocation = borderingAdjacent(x, y, i, ICE)
 		if (plantLocation !== -1) {
 			renderImageData32[plantLocation] = WATER
@@ -181,21 +209,17 @@ function FIRE_ACTION(x, y, i) {
 	}
 
 	if (random() < 29) {
-		let smother = true
-
-		if (smother) {
-			renderImageData32[i] = BACKGROUND
-		}
+		renderImageData32[i] = BACKGROUND
 	}
 
-	if (random() < 39) {
+	if (rand < 39) {
 		const riseLocation = above(y, i, BACKGROUND)
 		if (riseLocation !== -1) {
 			renderImageData32[riseLocation] = FIRE;
 		}
 	}
 
-	if (random() < 10) {
+	if (rand < 10) {
 		let sandLoc = borderingAdjacent(x, y, i, SAND)
 		if (sandLoc !== -1) {
 			renderImageData32[i] = GLASS
@@ -203,13 +227,34 @@ function FIRE_ACTION(x, y, i) {
 	}
 }
 
+/**
+ * Fuse behavior - This material is only affected by other materials
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function FUSE_ACTION(x, y, i) {
 
 }
 
+/**
+ * Vine actions behavior, previously known as PLANT.
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param i Index within the array
+ * @constructor
+ */
 function VINE_ACTION(x, y, i) {
 	if (random() >= 20) doGrow(x, y, i, WATER, 15)
 
+	/**
+	 * This set of if/else chooses how and if the vines will spread. If it finds that there is a pixel of background
+	 * within the cardinal directions and corners relative to itself it'll try to spread. First checking if there's any
+	 * wall or soil around upon which to spread, and if that is not true then it'll check if there's less than 4
+	 * neighboring vine pixels and more than 5 background pixels, so basically only ever true if there's 3 Vine neighbors
+	 * and the rest are BACKGROUND pixels.
+	 */
 	if (random() <= 3) {
 		if (borderingAdjacent(x, y, i, BACKGROUND) !== -1) {
 			if (countPixelsOfTypeAround(WALL, x, y, i) > 0 || countPixelsOfTypeAround(SOIL, x, y, i) > 0) {
@@ -235,7 +280,17 @@ function VINE_ACTION(x, y, i) {
 	}
 }
 
+/**
+ * Function for how steam operates.
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function STEAM_ACTION(x, y, i) {
+	/**
+	 * Try and rise
+	 */
 	if (doDensityGas(x, y, i, 50)) return
 	if (doRise(x, y, i, 40, 20)) return
 
@@ -250,7 +305,10 @@ function STEAM_ACTION(x, y, i) {
 		}
 	}
 
-	if (random() <= 5 && random() <= 40) {
+	/**
+	 * Condensing back into Water or disappearing
+	 */
+	if (random() <= 35) {
 		if (above(y, i, BACKGROUND) === -1 && below(y, i, BACKGROUND) !== -1) {
 			if (random() >= 80) {
 				renderImageData32[i] = WATER
@@ -305,9 +363,16 @@ function SOIL_ACTION(x, Y, i) {
 	}
 }
 
+/**
+ * Mud behavior function
+ * @param x X coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function MUD_ACTION(x, Y, i) {
 
-
+	//If not wet become dirt
 	if (random() < 5) {
 		if (bordering(x, Y, i, WATER) === -1) renderImageData32[i] = SOIL
 	}
@@ -322,6 +387,14 @@ function MUD_ACTION(x, Y, i) {
 
 }
 
+/**
+ * Lava behavior function.
+ * @param x X coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array.
+ * @constructor
+ */
+//TODO: This + acid could use a 'burnAdjacent' function.
 function LAVA_ACTION(x, Y, i) {
 
 	const LAVA_IMMUNE = [BACKGROUND, LAVA, FIRE, WATER, SALT_WATER, STEAM, PUMICE, GLASS]
@@ -333,18 +406,20 @@ function LAVA_ACTION(x, Y, i) {
 
 	BURN_RANGE = [up, down, left, right]
 
+	//Wall becomes lava
 	if (random() < 1) {
 		const wallLocation = borderingAdjacent(x, Y, i, WALL)
 		if (wallLocation !== -1) {
 			renderImageData32[wallLocation] = LAVA
 		}
 	}
+	//Water becomes steam and lava becomes pumice
 	const waterLocation = bordering(x, Y, i, WATER) || bordering(x, Y, i, SALT_WATER)
 	if (waterLocation !== -1) {
 		renderImageData32[waterLocation] = STEAM
 		renderImageData32[i] = PUMICE
 	}
-
+	//Checks for burnable elements, and if there is one, burns
 	if (random() < 25) {
 		BURN_RANGE.forEach((burnLocation) => {
 			if (!(LAVA_IMMUNE).includes(renderImageData32[burnLocation]) && burnLocation !== -1) {
@@ -369,6 +444,13 @@ function LAVA_ACTION(x, Y, i) {
 	if (doGravity(x, Y, i, true, 90)) ;
 }
 
+/**
+ * C4 behaviors function. Does the big boom.
+ * @param x X coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function C4_ACTION(x, Y, i) {
 	if (random() < 60 && bordering(x, Y, i, FIRE) !== -1) {
 		if (!particles.addActiveParticle("C4_PARTICLE", x, Y, i)) {
@@ -378,6 +460,13 @@ function C4_ACTION(x, Y, i) {
 	}
 }
 
+/**
+ * Methane behaviors function. Makes circly boom particles.
+ * @param x X coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function METHANE_ACTION(x, Y, i) {
 	if (random() < 20 && bordering(x, Y, i, FIRE) !== -1) {
 		if (!particles.addActiveParticle("METHANE_PARTICLE", x, Y, i)) {
@@ -390,10 +479,27 @@ function METHANE_ACTION(x, Y, i) {
 	if (doDensityGas(x, Y, i, 50)) ;
 }
 
+/**
+ * Glass behavior
+ * @param x X coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function GLASS_ACTION(x, Y, i) {
 }
 
+/**
+ * Pumice behaviors
+ * @param x X Coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function PUMICE_ACTION(x, Y, i) {
+	/**
+	 * Try and sink in everything that is fluid
+	 */
 	if (Y !== MAX_Y_IDX && uniformBelowAdjacent(x, Y, i) !== PUMICE) {
 		if (doDensitySink(x, Y, i, WATER, false, 95)) ;
 		if (doDensitySink(x, Y, i, OIL, false, 95)) ;
@@ -403,6 +509,14 @@ function PUMICE_ACTION(x, Y, i) {
 	if (doGravity(x, Y, i, false, 99)) ;
 }
 
+/**
+ * Behavior for the behavior of acid.
+ * @param x
+ * @param Y
+ * @param i
+ * @constructor
+ */
+//TODO Make this work in a way that is nicer on the eyes
 function ACID_ACTION(x, Y, i) {
 	const ACID_IMMUNE = [GLASS, BACKGROUND, FIRE, LAVA, ACID]
 	const up = Y !== 0 ? i - width : -1
@@ -427,6 +541,13 @@ function ACID_ACTION(x, Y, i) {
 	}
 }
 
+/**
+ * Producer functions like the spout mechanic but as an element, it multiplies any pixel that is touching it.
+ * @param x X coordinate
+ * @param Y Y coordinate
+ * @param i Index within the canvas array
+ * @constructor
+ */
 function PRODUCER_ACTION(x, Y, i) {
 	const prod_neighbors = countPixelsOfTypeAround(PRODUCER, x, Y, i)
 	if (prod_neighbors < 8) {
@@ -445,6 +566,14 @@ function PRODUCER_ACTION(x, Y, i) {
 	}
 }
 
+/**
+ * Ice behavior function, if touching salt or salt water then it melts, if touching water then it replaces that
+ * water pixel with itself. ((Perhaps have a checker for background that has like 1% chance of it melting again?))
+ * @param x
+ * @param y
+ * @param i
+ * @constructor
+ */
 function ICE_ACTION(x, y, i) {
 	const saltLoc = bordering(x, y, i, SALT)
 	if (saltLoc !== -1) {
@@ -457,150 +586,51 @@ function ICE_ACTION(x, y, i) {
 	if (random() >= 20) doGrow(x, y, i, WATER, 15)
 }
 
+/**
+ * Seed action behavior, because seed particles are so many we reduce the likelyhood of a tree being made.
+ * @param x
+ * @param y
+ * @param i
+ * @constructor
+ */
 function SEED_ACTION(x, y, i) {
 	if (doGravity(x, y, i, true, 75)) ;
 	const mudLoc = borderingAdjacent(x, y, i, SOIL)
 	if (mudLoc !== -1) {
 		if (random() > 98) {
-			if (random() > 50) {
 				if (!particles.addActiveParticle("TREE_PARTICLE", x, y, i)) {
 					renderImageData32[i] = BRANCH
 				}
-			}
 		} else {
 			renderImageData32[i] = BACKGROUND
 		}
 	}
 }
 
+/**
+ * Leaves for Tree particles
+ * @param x
+ * @param y
+ * @param i
+ * @constructor
+ */
 function LEAF_ACTION(x, y, i) {
-	// if(countPixelsOfTypeAround(LEAF, x, y, i) < 2 && countPixelsOfTypeAround(BACKGROUND, x, y, i) > 6){
-	// 	const backgroundLoc = borderingAdjacent(x, y, i, BACKGROUND)
-	// 	renderImageData32[backgroundLoc] = LEAF
-	// }
 
 }
 
+/**
+ * Branches for Tree particles
+ * @param x
+ * @param y
+ * @param i
+ * @constructor
+ */
 function BRANCH_ACTION(x, y, i) {
-
 }
 
-
-// function ANT_ACTION(x, y, i) {
-// 	const possibleMoves = [];
-// 	// Check if the ant has room to move
-// 	// Check adjacent positions for possible moves
-// 	if (doGravity(x, y, i, true, 20));
-// 	else {
-// 		if (isEmpty(x + 1, y, i + 1)) possibleMoves.push([x + 1, y, i + 1]); // Right
-// 		if (isEmpty(x - 1, y, i - 1)) possibleMoves.push([x - 1, y, i - 1]); // Left
-// 	}
-//
-// 	const soilLoc = bordering(x, y, i, SOIL);
-// 	if (soilLoc !== -1) {
-// 		renderImageData32[soilLoc] = ANT_NEST;
-// 	}
-//
-// 	if (possibleMoves.length > 0) {
-// 		// Check if the ant is near its ANT_NEST
-// 		const nearANT_NEST = isNearANT_NEST(x, y, i);
-//
-// 		// Choose a direction to move based on ANT_NEST proximity
-// 		const [newX, newY, newI] = chooseMoveDirection(x, y, i, possibleMoves, nearANT_NEST);
-//
-// 		// Move the ant to the new position
-// 		renderImageData32[i] = renderImageData32[newI];
-// 		renderImageData32[newI] = ANT;
-//
-// 		// Check if the ant is near an ant ANT_NEST and create wider tunnels
-// 		if (bordering(newX, newY, newI, ANT_NEST)) {
-// 			createWideTunnel(newX, newY, newI); // Passing i as an argument
-// 		}
-// 	}
-// }
-//
-// function ANT_NEST_ACTION(x, y, i) {
-// }
-//
-// function moveTowardsANT_NEST(x, y, i) {
-// 	// Calculate the center of the ANT_NEST tunnel
-// 	const [centerX, centerY] = getCenterOfANT_NEST();
-//
-// 	// Move towards the center of the nest tunnel
-// 	return moveTowardsTarget(x, y, centerX, centerY);
-// }
-//
-// function getCenterOfANT_NEST() {
-// 	// Calculate the bounding box of the ANT_NEST tunnel and determine the midpoint
-// 	let minX = MAX_X_IDX;
-// 	let minY = MAX_Y_IDX;
-// 	let maxX = 0;
-// 	let maxY = 0;
-//
-// 	for (let y = 0; y < MAX_Y_IDX; y++) {
-// 		for (let x = 0; x < MAX_X_IDX; x++) {
-// 			const i = (y * width) + x;
-// 			if (renderImageData32[i] === ANT_NEST) {
-// 				if (x < minX) minX = x;
-// 				if (x > maxX) maxX = x;
-// 				if (y < minY) minY = y;
-// 				if (y > maxY) maxY = y;
-// 			}
-// 		}
-// 	}
-//
-// 	const centerX = Math.floor((minX + maxX) / 2);
-// 	const centerY = Math.floor((minY + maxY) / 2);
-//
-// 	return [centerX, centerY];
-// }
-//
-// function moveTowardsTarget(x, y, targetX, targetY) {
-// 	// Move towards the target by choosing a direction with the shortest distance
-// 	const offsetX = Math.sign(targetX - x);
-// 	const offsetY = Math.sign(targetY - y);
-// 	const newX = x + offsetX;
-// 	const newY = y + offsetY;
-// 	const newI = (newY * width) + newX;
-// 	return [newX, newY, newI];
-// }
-//
-// function chooseMoveDirection(x, y, i, possibleMoves, nearANT_NEST) {
-// 	if (nearANT_NEST) {
-// 		// If near the ANT_NEST, prioritize moving towards the ANT_NEST
-// 		return moveTowardsANT_NEST(x, y, i);
-// 	} else {
-// 		// Choose a random direction to move
-// 		const randomIndex = Math.floor(Math.random() * possibleMoves.length);
-// 		return possibleMoves[randomIndex];
-// 	}
-// }
-//
-// function isNearANT_NEST(x, y, i) {
-// 	// Check for ANT_NEST proximity (you can define the distance threshold as per your game)
-// 	for (let offsetY = -5; offsetY <= 5; offsetY++) {
-// 		for (let offsetX = -5; offsetX <= 5; offsetX++) {
-// 			const loc = bordering(x, y, i, ANT_NEST);
-// 			if (loc !== -1) {
-// 				return true;
-// 			}
-// 		}
-// 	}
-// 	return false;
-// }
-//
-// function createWideTunnel(x, y, i) { // Passing i as an argument
-//                                      // Create a 3-wide tunnel by displacing dirt in three horizontal positions
-// 	for (let offsetX = -1; offsetX <= 1; offsetX++) {
-// 		const posX = x + offsetX;
-// 		const loc = bordering(x, y, i, ANT_NEST);
-// 		if (loc !== -1) {
-// 			// Move dirt or tunnel pixel to create a wider tunnel
-// 			renderImageData32[loc] = ANT_NEST; // Using 'loc' instead of 'y'
-// 		}
-// 	}
-// }
-
+/**
+ *      HELPER FUNCTIONS - ALL HELPER FUNCTIONS GO HERE
+ */
 
 /**
  * Checks to see if both elements are valid (not -1), and returns one of them at a 50% change. If only one is valid that
@@ -981,10 +1011,6 @@ function burnBorders(x, y, i) {
 	if (y !== 0) renderImageData32[i - width] = FIRE
 	if (x !== 0) renderImageData32[i - 1] = FIRE
 	if (x !== MAX_X_IDX) renderImageData32[i + 1] = FIRE
-}
-
-function isEmpty(i) {
-	if (renderImageData32[i] === BACKGROUND) return true
 }
 
 function countPixelsOfTypeAround(type, x, y, i) {

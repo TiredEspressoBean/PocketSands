@@ -1,14 +1,25 @@
+/**
+ * THE GAME ENGINE
+ *
+ * Here we are dealing with how the game is supposed to run/operate at an engine level.
+ */
+
+
+
+/**
+ * The LRU cache is a map, where each behavior function for elements on the screen are stored for ease of access later.
+ * By doing so this way we are able to decrease the lookup time for each element's behavior by a good margin, though
+ * we aren't using it as it traditionally would be as generally there aren't enough elements to start kicking others
+ * out of the cache.
+ */
+
 const LRUCacheSize = 100; // Set the LRU cache size as needed
 const LRUCache = new Map(); // Use a Map to simulate the LRU cache
 
 let lastElementAction = null;
 let lastActionFunction = null;
 
-let count = 0
-
-//TODO Reformat all of this nonsense, in a way that makes more sense
-
- let frameDebt = 0
+let frameDebt = 0
 
 /**
  * Starts up the initialization processes, making the canvas, kickstarting the other sets of codebases, and fills the
@@ -41,26 +52,30 @@ function setFPS(fps) {
 }
 
 /**
- * Main loop engine for the game. Will need to document quite heavily. Basic is it goes from bottom to top of the array
- * for the game itself.
+ * Canvas loop engine for the games interactions, goes through the entire canvas and calls respective functions based
+ * on the hex color code of the canvas.
  */
-//TODO Make this more my own and see about maybe redoing the nonsense where I used least significant bits
 function updateGame() {
 	updateParticles();
 
 	const direction = MAX_Y_IDX & 1;
 	let i = MAX_IDX;
 
+	//Start going backwards through the canvas from the Y coordinate
 	for (let y = MAX_Y_IDX; y !== -1; y--) {
 		const Y = y;
+		//We start going left and right depending on which Y level we're at, bouncing back and forth depending on if
+		//the Y is even or odd
 		if ((Y & 1) === direction) {
+			//Here we are going right to left, and making our X coordinate
 			for (let x = MAX_X_IDX; x !== -1; x--) {
 				let i = Y * width + x;
 				const elem = renderImageData32[i];
-
+				//Skipping the most common element that has literally nothing it does
 				if (elem === BACKGROUND) {
 					i--;
 				} else {
+					//Start using the LRU cache
 					if (elem !== lastElementAction) {
 						lastElementAction = elem;
 
@@ -123,15 +138,11 @@ function updateGame() {
 
 
 /**
- *
+ * This function deals with just drawing each frame onto the model canvas, by clearing the previous context and
+ * imposing the new image from renderImageArray.
  */
 function draw() {
-	// Clear the renderCanvas
 	renderContext.clearRect(0, 0, renderCanvas.width, renderCanvas.height);
-
-	// Your logic to update renderImageData32 based on the game state goes here
-
-	// After updating renderImageData32, put the updated data onto the renderCanvas
 	renderContext.putImageData(renderImageArray, 0, 0);
 
 	// Scale and draw the renderCanvas to fit the modelCanvas for display
@@ -139,12 +150,18 @@ function draw() {
 	modelContext.drawImage(renderCanvas, 0, 0, modelCanvas.width, modelCanvas.height);
 }
 
+/**
+ * Saving the game to saveImageData32
+ */
 function saveGame(){
 	const xStop = MAX_IDX + 1
 	for (let x = 0; x !== xStop; x++) saveImageData32[x] = renderImageData32[x]
 	gameSaved = true
 }
 
+/**
+ * Loading the game from the saveImageData32
+ */
 function loadGame(){
 	if (!gameSaved) return
 
@@ -154,6 +171,9 @@ function loadGame(){
 	for (let x = 0; x !== xStop; x++) renderImageData32[x] = saveImageData32[x]
 }
 
+/**
+ * Zips through the canvas setting all pixels to Background
+ */
 function clearCanvas(){
 	particles.inactiveAll()
 
@@ -161,6 +181,11 @@ function clearCanvas(){
 	for (let x = 0; x !== xStop; x++) renderImageData32[x] = BACKGROUND
 }
 
+/**
+ * Used in order to figure out the Frames per second, populating the refreshTimes array and using its length in order
+ * to set the FPS. Adds timestamps to the array and if they are from more than 1 second ago removes them from the 0
+ * index of the array(last in first out stack operation)
+ */
 function perfRecordFrame() {
 	const now = performance.now();
 	const oneSecondAgo = now - 1000;
@@ -175,6 +200,11 @@ function perfRecordFrame() {
 	}
 }
 
+/**
+ * Main loop for the game that puts everything into motion
+ * @param now
+ */
+//TODO document this fully and give updateGame a better JSdoc entry
 function gameLoop(now) {
 	window.requestAnimationFrame(gameLoop);
 	if (lastLoop === 0) {
@@ -197,7 +227,7 @@ function gameLoop(now) {
 		} else {
 			const updateTimeMS = executeAndTime(updateGame)
 
-			const loopMisc = 3.5
+			const loopMisc = .5
 
 			let timeRemainder = animationInterval - updateTimeMS - loopMisc
 			while (timeRemainder > updateTimeMS && frameDebt >= 1) {

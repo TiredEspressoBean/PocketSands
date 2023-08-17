@@ -1,3 +1,11 @@
+/**
+ * Touch and Mouse based events controller
+ *
+ * These functions provide the set of event based handlers controlling the mouse and touch interactions on the game
+ * canvas, ensuring consistent behavior in the circumstances of both mobile and traditional desktop based usage.
+ */
+
+
 const CURSORS = []
 
 /**
@@ -568,11 +576,19 @@ class Mouse extends Cursor {
 	}
 }
 
+/**
+ * Touch interface controls
+ */
 class TouchCursor extends Cursor {
 	constructor(canvas) {
 		super(canvas);
 	}
 
+	/**
+	 * Start point for touch controls
+	 * @param e Touch event start
+	 * @returns {boolean}
+	 */
 	canvasTouchStart(e) {
 		const pos = TouchCursor.getTouchPos(e);
 
@@ -586,6 +602,11 @@ class TouchCursor extends Cursor {
 		return false;
 	}
 
+	/**
+	 * End of touch events
+	 * @param e Touch event end
+	 * @returns {boolean}
+	 */
 	canvasTouchEnd(e) {
 		super.documentCursorUp();
 
@@ -595,6 +616,11 @@ class TouchCursor extends Cursor {
 		return false;
 	}
 
+	/**
+	 * Movement of touch cursor on the canvas
+	 * @param e Touch positions between start and end
+	 * @returns {boolean}
+	 */
 	canvasTouchMove(e) {
 		const pos = TouchCursor.getTouchPos(e);
 
@@ -612,6 +638,11 @@ class TouchCursor extends Cursor {
 		return false;
 	}
 
+	/**
+	 * Calculates the positions of the touch events in order to draw onto the canvas.
+	 * @param e Touch event
+	 * @returns {number[]|null} X Y coordinates relative to the page
+	 */
 	static getTouchPos(e) {
 		if (!e.touches) return null;
 
@@ -622,9 +653,11 @@ class TouchCursor extends Cursor {
 		const canvas = document.getElementById("gameCanvas");
 		const rect = canvas.getBoundingClientRect();
 
+		//Calculate the relative positions first by subtracting from the touch events x/y the offset relative
 		const touchX = touch.clientX - rect.left;
 		const touchY = touch.clientY - rect.top;
 
+		//Then calculating based on the scale difference between the modelCanvas and the other canvases
 		let x = Math.round(touchX * screen_scale);
 		let y = Math.round(touchY * screen_scale);
 
@@ -640,9 +673,13 @@ class TouchCursor extends Cursor {
 
 }
 
+/**
+ * Hooks up the touch and moused based event interfaces
+ */
 function initCursors() {
 
 	const mouseCursor = new Mouse(modelCanvas)
+	const touchCursor = new TouchCursor(modelCanvas);
 
 	modelCanvas.onmousedown = function (e) {
 		mouseCursor.canvasMouseDown(e);
@@ -665,17 +702,10 @@ function initCursors() {
 	document.onmousemove = function (e) {
 		mouseCursor.documentMouseMove(e);
 	};
-	document.onkeydown = function (e) {
-		mouseCursor.documentKeyDown(e);
-	};
-	document.onkeyup = function (e) {
-		mouseCursor.documentKeyUp(e);
-	};
 	document.onvisibilitychange = function (e) {
 		mouseCursor.documentVisibilityChange(e);
 	};
 
-	const touchCursor = new TouchCursor(modelCanvas);
 	modelCanvas.addEventListener("touchstart", function (e) {
 		touchCursor.canvasTouchStart(e);
 	});
@@ -691,61 +721,29 @@ function initCursors() {
 	Object.freeze(CURSORS);
 }
 
-
+/**
+ * For all within the Cursors array draw the strokes that are populated
+ */
 function updateUserStroke() {
 	const numCursors = CURSORS.length
 	for (let i = 0; i !== numCursors; i++) {
 		CURSORS[i].drawStroke()
 	}
-}function initCursors() {
-	PENSIZE = PEN_SIZES[DEFAULT_PEN_IDX];
-	SELECTED_ELEM = SAND;
+}
 
-	const mouseCursor = new Mouse(modelCanvas)
-
-	modelCanvas.onmousedown = function (e) {
-		mouseCursor.canvasMouseDown(e);
-	};
-	modelCanvas.onmousemove = function (e) {
-		mouseCursor.canvasMouseMove(e);
-	};
-	modelCanvas.onmouseleave = function (e) {
-		mouseCursor.canvasMouseLeave(e);
-	};
-	modelCanvas.onmouseenter = function (e) {
-		mouseCursor.canvasMouseEnter(e);
-	};
-	document.onmouseup = function () {
-		mouseCursor.documentMouseUp();
-	};
-	document.onmousedown = function (e) {
-		mouseCursor.documentMouseDown(e);
-	};
-	document.onmousemove = function (e) {
-		mouseCursor.documentMouseMove(e);
-	};
-	document.onkeydown = function (e) {
-		mouseCursor.documentKeyDown(e);
-	};
-	document.onkeyup = function (e) {
-		mouseCursor.documentKeyUp(e);
-	};
-	document.onvisibilitychange = function (e) {
-		mouseCursor.documentVisibilityChange(e);
-	};
-
-	const touchCursor = new TouchCursor(modelCanvas);
-	modelCanvas.addEventListener("touchstart", function (e) {
-		touchCursor.canvasTouchStart(e);
-	});
-	modelCanvas.addEventListener("touchend", function (e) {
-		touchCursor.canvasTouchEnd(e);
-	});
-	modelCanvas.addEventListener("touchmove", function (e) {
-		touchCursor.canvasTouchMove(e);
-	});
-
-	CURSORS.push(mouseCursor);
-	CURSORS.push(touchCursor);
-	Object.freeze(CURSORS);
+/**
+ * Accumulates the offsets to calculate position relative to the parent canvas element
+ * @param elem
+ * @param offsetProp
+ * @returns {number} Calculated offset
+ */
+function docOffset(elem, offsetProp) {
+	let offset = 0;
+	while (elem) {
+		if (!Number.isNaN(elem[offsetProp])) {
+			offset += elem[offsetProp];
+		}
+		elem = elem.offsetParent;
+	}
+	return offset;
 }
