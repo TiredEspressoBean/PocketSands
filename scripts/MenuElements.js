@@ -66,11 +66,11 @@ function initMenu() {
 		let b = (colorInt >> 16) & 0xff;
 		const a = 255;
 
-		if ((r + g + b) > 510 && (r + g + b)<675){
-			if ((r+g+b)<610){
-				r = r - 60
-				b = b - 60
-				g = g - 60
+		if ((r + g + b) > 610 && (r + g + b)<710){
+			if ((r+g+b)<666){
+				r = r - 70
+				b = b - 70
+				g = g - 70
 			} else {
 				r = r + 30
 				b = b + 30
