@@ -37,7 +37,7 @@ function init() {
 
 	const len = renderImageData32.length
 	for (let i = 0; i < len; i++) {
-		renderImageData32[i] = SAND;
+		renderImageData32[i] = BACKGROUND;
 	}
 }
 
